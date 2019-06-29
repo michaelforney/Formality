@@ -80,6 +80,10 @@ fmc -s main
 
 For a reference of the language features, check our [wiki](https://github.com/moonad/formality-javascript/wiki).
 
+## Implementations
+- [JavaScript](https://github.com/moonad/Formality-JavaScript/tree/master/FM-Core)
+
+
 ## Theory
 
 Formality-Core is based on the [Elementary Affine Core](../EA-Core), extended with numeric primitives and pairs. It is compiled to a lightweight interaction net system based on [Symmetric Interaction Combinators](https://pdfs.semanticscholar.org/1731/a6e49c6c2afda3e72256ba0afb34957377d3.pdf) for evaluation, as shown below:
