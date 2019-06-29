@@ -14,7 +14,7 @@ An optimal compilation target for functional programming languages. It is:
 
 6. **Portable:** soon-to-be implemented in [FM-NET](../FM-Net), a portable, 400-LOC runtime.
 
-This repository includes a refrence implementation in JavaScript. We're working in specifications/formalizations, and low-level (LLVM/CUDA) backends.
+This repository includes a reference implementation in [JavaScript](https://github.com/moonad/Formality-JavaScript/tree/master/FM-Core). We're working in specifications/formalizations, and low-level (LLVM/CUDA) backends.
 
 ## Example
 
@@ -60,7 +60,7 @@ n | fib(n) % 2^32 | graph rewrites
 
 As you can see, `fib(n)` is linear, and needs exactly 6 graph rewrites per iteration of the loop. This JS implementation performs roughly `3m` rewrites/s. We expect this to increase a few orders of magnitude with compilers and hardware.
 
-For more examples, check our [wiki](https://github.com/moonad/formality-javascript/wiki).
+For more examples, check our [wiki](https://github.com/moonad/Formality/wiki).
 
 ## Usage
 
@@ -78,7 +78,7 @@ cd stdlib
 fmc -s main
 ```
 
-For a reference of the language features, check our [wiki](https://github.com/moonad/formality-javascript/wiki).
+For a reference of the language features, check our [wiki](https://github.com/moonad/Formality/wiki).
 
 ## Implementations
 - [JavaScript](https://github.com/moonad/Formality-JavaScript/tree/master/FM-Core)
