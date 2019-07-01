@@ -127,7 +127,7 @@ ctx |- !A : Type
 
 ctx |- a : A
 -------------- PUT
-ctx |- #a : !A
+!ctx |- #a : !A
 
 ctx |- a : !A   ctx, x : A |- b : B
 ----------------------------------- DUP
