@@ -1,5 +1,24 @@
 def TEXT: 1954047348
 
+// Converts a bytestring into an UTF-8 string (incorrect for some inputs)
+def from_bytes_to_codepoints: {bytes}
+  {Cons}
+  dup Cons = Cons
+  let loop = {x h i}
+    cpy i = i
+    cpy x = x
+    (if |i == 0| then:
+      if |x < 0x80| then: {h Cons x} (Cons x (h 0))
+      else: if |x < 0xdf| then: {h Cons x} (h 1 {k} |x + k|)
+      else: if |x < 0xef| then: {h Cons x} (h 2 {k} |x + k|)
+      else: {h Cons x} (h 3 {k} |x + k|)
+    else: if |i == 1| then: {h Cons x} {k} (Cons (k |x << 2|) (h 0))
+    else: if |i == 2| then: {h Cons x} {k} (h 1 {y} (k |x + |y << 2||))
+    else: {h Cons x} {k} (h 2 {y} (k |x + |y << 2||))
+    h Cons x)
+  dup rec = (bytes #loop)
+  #{Nil} (rec {i} Nil 0)
+
 // Converts an UTF-8 string into a list of bytes
 def to_chars: {str}
   {Cons}
