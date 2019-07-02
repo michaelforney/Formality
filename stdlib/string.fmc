@@ -9,15 +9,26 @@ def from_bytes_to_codepoints: {bytes}
     cpy x = x
     (if |i == 0| then:
       if |x < 0x80| then: {h Cons x} (Cons x (h 0))
-      else: if |x < 0xdf| then: {h Cons x} (h 1 {k} |x + k|)
-      else: if |x < 0xef| then: {h Cons x} (h 2 {k} |x + k|)
-      else: {h Cons x} (h 3 {k} |x + k|)
-    else: if |i == 1| then: {h Cons x} {k} (Cons (k |x << 2|) (h 0))
-    else: if |i == 2| then: {h Cons x} {k} (h 1 {y} (k |x + |y << 2||))
-    else: {h Cons x} {k} (h 2 {y} (k |x + |y << 2||))
+      else: if |x < 0xdf| then: {h Cons x} (h 1 x)
+      else: if |x < 0xef| then: {h Cons x} (h 2 x)
+      else: {h Cons x} (h 3 x)
+    else: if |i == 1| then: {h Cons x} {k} (Cons |x + |k << 8|| (h 0))
+    else: if |i == 2| then: {h Cons x} {k} (h 1 |x + |k << 8||)
+    else: {h Cons x} {k} (h 2 |x + |k << 8||)
     h Cons x)
   dup rec = (bytes #loop)
   #{Nil} (rec {i} Nil 0)
+
+// |x + |y << 8||
+// |x + ||y + |z << 8|| << 8||
+// |x + ||y + ||z + |w << 8|| << 8|| << 8||
+
+def lel: (from_bytes_to_codepoints (to_chars "λ"))
+def lel2: ((snd "中"))
+def lel3: ((snd "λ"))
+def lel4: ((to_chars "中"))
+def lel5: ((to_chars "λ"))
+
 
 // Converts an UTF-8 string into a list of bytes
 def to_chars: {str}
