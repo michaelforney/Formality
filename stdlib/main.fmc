@@ -61,5 +61,8 @@ def term_test:
 def array_test:
   array_example
 
+def utf8_test:
+  (to_codepoints "λ我希望")
+
 def main:
-  string_concat_test
+  utf8_test

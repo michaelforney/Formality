@@ -1,33 +1,31 @@
 def TEXT: 1954047348
 
-// Converts a bytestring into an UTF-8 string (incorrect for some inputs)
-def from_bytes_to_codepoints: {bytes}
+// String to utf-8 byte list (little endian)
+def to_codepoints: {str}
   {Cons}
   dup Cons = Cons
-  let loop = {x h i}
-    cpy i = i
+  let loop_aux = {x h}
     cpy x = x
-    (if |i == 0| then:
-      if |x < 0x80| then: {h Cons x} (Cons x (h 0))
-      else: if |x < 0xdf| then: {h Cons x} (h 1 x)
-      else: if |x < 0xef| then: {h Cons x} (h 2 x)
-      else: {h Cons x} (h 3 x)
-    else: if |i == 1| then: {h Cons x} {k} (Cons |x + |k << 8|| (h 0))
-    else: if |i == 2| then: {h Cons x} {k} (h 1 |x + |k << 8||)
-    else: {h Cons x} {k} (h 2 |x + |k << 8||)
-    h Cons x)
-  dup rec = (bytes #loop)
+    (if |x > 0| then:
+      {h i}
+      cpy i = i
+      (if |i == 0| then:
+        if       |x < 0x80|                then: {h Cons x} (Cons x (h 0))
+        else: if ||x > 0xc1| * |x < 0xe0|| then: {h Cons x} (h 1 {y} |x + |y << 8||)
+        else: if ||x > 0xdf| * |x < 0xf0|| then: {h Cons x} (h 2 {y} |x + |y << 8||)
+        else: if ||x > 0xef| * |x < 0xf5|| then: {h Cons x} (h 3 {y} |x + |y << 8||)
+        else: "ERROR - Invalid character" // -> TODO: Make decent exception handling
+      else:
+        if |i == 1| then: {h Cons x} {k} (Cons (k x) (h 0))
+        else:             {h Cons x} {k} (h |i - 1| {y} (k |x + |y << 8||))
+      h Cons x)
+    else: {h} h
+    h)
+  let loop = {c h i}
+    cpy c = c
+    (loop_aux ||c >>  0| & 0xFF| (loop_aux ||c >>  8| & 0xFF| (loop_aux ||c >> 16| & 0xFF| (loop_aux ||c >> 24| & 0xFF| h))) i)
+  dup rec = (snd str #loop)
   #{Nil} (rec {i} Nil 0)
-
-// |x + |y << 8||
-// |x + ||y + |z << 8|| << 8||
-// |x + ||y + ||z + |w << 8|| << 8|| << 8||
-
-def lel: (from_bytes_to_codepoints (to_chars "λ"))
-def lel2: ((snd "中"))
-def lel3: ((snd "λ"))
-def lel4: ((to_chars "中"))
-def lel5: ((to_chars "λ"))
 
 
 // Converts an UTF-8 string into a list of bytes
