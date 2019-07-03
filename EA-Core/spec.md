@@ -45,31 +45,31 @@ EAC has the following reduction rules:
 
 2. Duplication of a boxed term
 
-        [x = |a] b ~> [a/x]b
+        (dup x = #a) b ~> [a/x]b
 
-    The duplication `[x = |a] b` of a boxed term `|a` evaluates to the body `b` of the duplication with all occurrences of its variable `x` replaced by the unboxed term `a`.
+    The duplication `(dup x = #a) b` of a boxed term `#a` evaluates to the body `b` of the duplication with all occurrences of its variable `x` replaced by the unboxed term `a`.
 
 3. Application of a duplication
         
-        ([x = a] b c) ~> [x = a] (b c)
+        ((dup x = a) b c) ~> dup x = a; (b c)
 
     The application of a duplication simply lifts the duplication outwards.
 
 4. Duplication of a duplication
 
-        [x = [y = a] b] c ~> [y = a] [x = b] c
+        (dup x = (dup y = a;) b); c ~> dup y = a; dup x = b; c
 
     The duplication of a duplication simply lifts the inner duplication outwards.
 
 5. Application of a boxed term
   
-        (|a b) ~> ⊥
+        (#a b) ~> ⊥
 
     The application of a boxed term is undefined behavior.
 
 6. Duplication of a lambda
 
-        [x = [y] b] c ~> ⊥
+        (dup x = {y} b) c ~> ⊥
 
     The duplication of a lambda is undefined behavior.
 
@@ -107,7 +107,7 @@ Lets define `size(t, n)` as the number of constructors that a term `t` has on le
 
 The reduction consumes an application constructor, thus, `size(t,n)` decreases by 1. It also causes the occurrence of `x` in `a` to be substituted by `b`. Since, though, lambdas are affine, there can only be at most one occurrence of `x`. As such, that substitution doesn't increase `size(t,n)`.
 
-- `duplication` case (`[x = |a] b ~> [a/x]b`):
+- `duplication` case (`(dup x = #a] b ~> [a/x]b`):
 
 The reduction consumes a duplication constructor, thus, `size(t,n)` decreases by 1. Also, it causes the substitution of multiple ocurrences of `x` by `a` on `b`, but, due to the stratification condition, the occurrences of `x` in `b` would have been wrapped by exactly one box and, thus, on level `S(n)`. As such, they do not increase `size(t,n)`.
 
