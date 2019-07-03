@@ -60,7 +60,7 @@
 // SIRPIX  | Stealth_Move   | Moves your Stealth Clone up to 3 range.
 // SIRPIX  | Stealth_Strike | Range: 0. Area: 0. Damage: 3. Before attacking, swaps position with your Stealth Clone.
 // SIRPIX  | Lockpick       | Special effects on map.
-// KENLUA  | Haste          | Range: 3. Area: 0. Loses 2 hp. Blinks to target. Range: 0. Area: 1. Damage: 4.
+// KENLUA  | Haste          | Range: 3. Area: 0. Loses 1 hp. Blinks to target. Range: 0. Area: 1. Damage: 4.
 // KENLUA  | Dodge          | Range: 32. Can't take damage from target during this turn.
 // KENLUA  | Slash          | Range: 1. Area: 0. Damage: 12.
 // FLINA   | Javelin        | Range: 2. Area: 0. Damage: 4. Fast.
@@ -103,24 +103,24 @@ def kaelin:
   // :: Array ::
   // :::::::::::
 
-  dup fold4    = (fold_array ~4)
-  dup fold6    = (fold_array ~6)
-  dup fold8    = (fold_array ~8) 
-  dup init4    = (init ~4)
-  dup init6    = (init ~6)
-  dup init8    = (init ~8) #
-  dup with4    = (with ~4)
-  dup take4    = (take ~4)
-  dup update4  = (update ~4)
-  dup write4   = (write ~4)
-  dup with6    = (with ~6)
-  dup take6    = (take ~6)
-  dup update6  = (update ~6)
-  dup write6   = (write ~6)
-  dup with8    = (with ~8)
-  dup take8    = (take ~8)
-  dup update8  = (update ~8)
-  dup write8   = (write ~8)
+  let fold4   = (pbt_fold_array PBT4)
+  let fold6   = (pbt_fold_array PBT6)
+  let fold8   = (pbt_fold_array PBT8)
+  let init4   = (pbt_init_array PBT4)
+  let init6   = (pbt_init_array PBT6)
+  let init8   = (pbt_init_array PBT8)
+  dup with4   = (with ~4)
+  dup take4   = (take ~4)
+  dup update4 = (update ~4)
+  dup write4  = (write ~4)
+  dup with6   = (with ~6)
+  dup take6   = (take ~6)
+  dup update6 = (update ~6)
+  dup write6  = (write ~6)
+  dup with8   = (with ~8)
+  dup take8   = (take ~8)
+  dup update8 = (update ~8)
+  dup write8  = (write ~8)
 
   // :::::::::::::::
   // :: Direction ::
@@ -1253,7 +1253,7 @@ dup new_board = #
       get [board, void]  = (is_void_at tpos0 board)
       (if void
         then: {board}
-          let board = (board_update cpos0 (dmge 2) board)
+          let board = (board_update cpos0 (dmge 1) board)
           let board = (board_swap cpos1 tpos1 board)
           let board = (strike tpos2 tpos3 board)
           board

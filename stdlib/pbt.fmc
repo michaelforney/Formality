@@ -1,0 +1,109 @@
+def PBT0: {b n}
+  dup b = b
+  dup n = n
+  # n
+
+def PBT1: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  # A
+
+def PBT2: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  # B
+
+def PBT3: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  # C
+
+def PBT4: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  # D
+
+def PBT5: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  # PBT
+
+def PBT6: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  # F
+
+def PBT7: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  # G
+
+def PBT8: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  # H
+
+def PBT9: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  # I
+
+def PBT10: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  dup J = # (b I I)
+  # J

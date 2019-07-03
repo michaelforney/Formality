@@ -246,3 +246,30 @@ def fold_array_example:
 
 def array:
   fold_array_example
+
+// pbt_fold_array
+// : {-A  : Type}
+//   {-P   : Type}
+//   {dpt  : PBT}
+//   {Node : !{lft : A} {rgt : A} P}
+//   {Leaf : !{val : A} P}
+//   ! {arr  : !(Array dpt A)}
+//     P
+def pbt_fold_array: {pbt Node Leaf}
+  dup Node = Node
+  dup Leaf = Leaf
+  let leaf = # {val} (Leaf val)
+  let node = # {lft rgt arr}
+    get [arr_lft, arr_rgt] = arr
+    (Node (lft arr_lft) (rgt arr_rgt))
+  (pbt node leaf)
+
+// pbt_init_array
+// | Generates an array with 2^dpt copies of val
+// : {-A  : Type}
+//   {dpt : PBT}
+//   {val : !A}
+//   ! (Array dpt A)
+def pbt_init_array: {dpt val}
+  dup val = val
+  (dpt #{a b}[a,b] #val)
