@@ -18,11 +18,11 @@ var ::=
   <any alphanumeric string>
 
 term ::=
-  var                   -- variables
-  {var} term            -- lambdas
-  (term term)           -- applicatons
-  # term                -- box 
-  (dup var = term) term -- duplication
+  var                  -- variables
+  {var} term           -- lambdas
+  (term term)          -- applicatons
+  # term               -- box 
+  dup var = term; term -- duplication
 ```
 
 Plus the stratification condition, which dictates that:
@@ -45,19 +45,19 @@ EAC has the following reduction rules:
 
 2. Duplication of a boxed term
 
-        (dup x = #a) b ~> [a/x]b
+        dup x = #a; b ~> [a/x]b
 
-    The duplication `(dup x = #a) b` of a boxed term `#a` evaluates to the body `b` of the duplication with all occurrences of its variable `x` replaced by the unboxed term `a`.
+    The duplication `dup x = #a; b` of a boxed term `#a` evaluates to the body `b` of the duplication with all occurrences of its variable `x` replaced by the unboxed term `a`.
 
 3. Application of a duplication
         
-        ((dup x = a) b c) ~> dup x = a; (b c)
+        ((dup x = a; b) c) ~> dup x = a; (b c)
 
     The application of a duplication simply lifts the duplication outwards.
 
 4. Duplication of a duplication
 
-        (dup x = (dup y = a;) b); c ~> dup y = a; dup x = b; c
+        dup x = (dup y = a; b); c ~> dup y = a; dup x = b; c
 
     The duplication of a duplication simply lifts the inner duplication outwards.
 
@@ -69,7 +69,7 @@ EAC has the following reduction rules:
 
 6. Duplication of a lambda
 
-        (dup x = {y} b) c ~> ⊥
+        dup x = {y} b; c ~> ⊥
 
     The duplication of a lambda is undefined behavior.
 
@@ -84,47 +84,52 @@ We're looking to formalize EAL in Agda. Meanwhile, here is a quick informal (and
 ### Definitions
 
 Lets define `level(p,t)` a sub-expression (addressed by path `p`) of a term `t`. Ex:
+
 ```
 Given:		
-    let path = D : D : R : D : D : R : D : []
-    let term = #{x} (x #{y} (y #{z} z))
 
-Then `level(path, term)` is 2, because `path` points to `{z}z`, which has 3 surrounding boxes (`#`).
+  let path = D : D : R : D : D : R : D : []
+  let term = #{x} (x #{y} (y #{z} z))
+
+Then `level(path, term)` is 3, because `path` points
+to `{z}z`, which has 3 surrounding boxes (`#`).
 
 Where:
-     - `D` is Down
-     - `R` is Right
-     - `L` is Left
-     - `:` is the list append function
-     - `[]` is the empty list
+  - `D` is Down
+  - `R` is Right
+  - `L` is Left
+  - `:` is the list append function
+  - `[]` is the empty list
 ```
 
 A rough pseudo-code of `level` would be:
 
 ```
-    level :: Path -> Term -> Nat
-    level([], t)                = 0
-    level(p : ps, var_i)        = 0
-    level(p : ps, {x} t)        = level(ps, t)
-    level(L : ps, (t t'))       = level(ps, t)
-    level(R : ps, (t t'))       = level(ps, t')
-    level(p : ps, # t)          = 1 + level(ps, t)
-    level(L : ps, dup x = t t') = level(ps, a)
-    level(R : ps, dup x = t t') = level(ps, b)
+level :: Path -> Term -> Nat
+level([], t)                 = 0
+level(p : ps, var_i)         = 0
+level(p : ps, {x} t)         = level(ps, t)
+level(L : ps, (t t'))        = level(ps, t)
+level(R : ps, (t t'))        = level(ps, t')
+level(p : ps, # t)           = 1 + level(ps, t)
+level(L : ps, dup x = t; t') = level(ps, a)
+level(R : ps, dup x = t; t') = level(ps, b)
 ```
 
 Lets define `size(t, n)` as the number of constructors that a term `t` has on level `n` exactly. Ex:
 
-    If `t = {x} #({y}y {z}z #({w}w {u}u))`, then `size(t, 1) = 3`,
-    because that term has 3 constructors at level 1:
+```
+If `t = {x} #({y}y {z}z #({w}w {u}u))`, then `size(t, 1) = 3`,
+because that term has 3 constructors at level 1:
 
-    1. `{y}y` (a LAM)
+1. `{y}y` (a LAM)
 
-    2. `{z}z` (a LAM)
+2. `{z}z` (a LAM)
 
-    3. `#({w}w {u}u)` (a BOX)
+3. `#({w}w {u}u)` (a BOX)
 
-    Note that `{w}w`, `{u}u` and `({w}w {u}u)` are on level 2, not 1
+Note that `{w}w`, `{u}u` and `({w}w {u}u)` are on level 2, not 1
+```
 
 ### Reducing redexes at level `n` always decreases `size(t,n)`.
 
@@ -132,7 +137,7 @@ Lets define `size(t, n)` as the number of constructors that a term `t` has on le
 
 The reduction consumes an application constructor, thus, `size(t,n)` decreases by 1. It also causes the occurrence of `x` in `a` to be substituted by `b`. Since, though, lambdas are affine, there can only be at most one occurrence of `x`. As such, that substitution doesn't increase `size(t,n)`.
 
-- `duplication` case (`(dup x = #a) b ~> [a/x]b`):
+- `duplication` case (`dup x = #a; b ~> [a/x]b`):
 
 The reduction consumes a duplication constructor, thus, `size(t,n)` decreases by 1. Also, it causes the substitution of multiple ocurrences of `x` by `a` on `b`, but, due to the stratification condition, the occurrences of `x` in `b` would have been wrapped by exactly one box and, thus, on level `S(n)`. As such, they do not increase `size(t,n)`.
 
