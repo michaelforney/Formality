@@ -64,5 +64,8 @@ def array_test:
 def utf8_test:
   (to_codepoints "λ我希望")
 
+def utf8_conversion_test:
+  (codepoint_to_ncr (ncr_to_codepoint 955))
+
 def main:
-  utf8_test
+  string_concat_test
