@@ -70,6 +70,7 @@ def to_codepoints: {str}
   dup rec = (snd str #loop)
   #{Nil} (rec {i} Nil 0)
 
+// Converts a utf-8 codepoint list to a String
 def from_codepoints: {codepoints} 
   (from_chars (to_chars [TEXT, codepoints]))
 
