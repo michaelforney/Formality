@@ -67,5 +67,11 @@ def utf8_test:
 def utf8_conversion_test:
   (codepoint_to_ncr (ncr_to_codepoint 955))
 
+def from_codepoints_test:
+  let string = "λabc"
+  let codepoints = (to_codepoints string)
+  [({x} (from_chars (to_chars [TEXT, x])) codepoints),
+  (from_codepoints codepoints)]
+
 def main:
   string_concat_test

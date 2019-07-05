@@ -1,8 +1,5 @@
 def TEXT: 1954047348
 
-
-def codepoints_to_string: {codepoints} (from_chars (to_chars [TEXT, codepoints]))
-
 // Converts an UTF-8 string into a list of bytes
 def to_chars: {str}
   {Cons}
@@ -72,6 +69,9 @@ def to_codepoints: {str}
     (loop_aux ||c >>  0| & 0xFF| (loop_aux ||c >>  8| & 0xFF| (loop_aux ||c >> 16| & 0xFF| (loop_aux ||c >> 24| & 0xFF| h))) i)
   dup rec = (snd str #loop)
   #{Nil} (rec {i} Nil 0)
+
+def from_codepoints: {codepoints} 
+  (from_chars (to_chars [TEXT, codepoints]))
 
 // Convert from Unicode Codepoint to UTF-8 Numeric Character Reference
 def codepoint_to_ncr: {codepoint}
