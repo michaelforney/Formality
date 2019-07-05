@@ -10,7 +10,7 @@ An optimal compilation target for functional programming languages. It is:
 
 4. **Efficient:** interaction-net runtime with 128-bit nodes, unboxed 32-bit uints, no costly bookkeeping.
 
-5. **Terminating:** computations are guaranteed to halt in elementary time.
+5. **Terminating:** computations are guaranteed to halt.
 
 6. **Portable:** soon-to-be implemented in [FM-NET](../FM-Net), a portable, 400-LOC runtime.
 
