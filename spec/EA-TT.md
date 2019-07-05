@@ -101,53 +101,61 @@ Applicating a boxed term and duplicating a lambda are undefined, prevented by EA
 
 EA-TT's typing rules are the following:
 
-```javascript
------------ TYP
-Type : Type
+```
+-------------- TYP
+⊢ Type : Type
 
-(var, type) in ctx
------------------- VAR
-ctx |- var : type
+Γ ⊢ a : A    Γ ⊢ B : Type    (x not in dom(Γ))   
+----------------------------------------------- WEAK
+Γ, x : B ⊢ a : A
 
-ctx |- A : Type    ctx, x : A |- B : Type
+Γ ⊢ a : A    Γ ⊢ B : Type    (A =β B)
+----------------------------------------------- CONV
+Γ ⊢ a : B
+
+Γ ⊢ A : Type    (x not in dom(Γ))
+--------------------------------- VAR
+Γ, x : A ⊢ x : A
+
+Γ ⊢ A : Type    Γ, x : A ⊢ B : Type
 ----------------------------------------- ALL
-ctx |- {x : A} B : Type
+Γ ⊢ {x : A} B : Type
 
-ctx, x : A |- f : B    ctx |- {a : A} B : Type
----------------------------------------------- LAM
-ctx |- [x : A] f : {x : A} B
-
-ctx |- f : {x : A} B    ctx |- a : A
+Γ ⊢ f : {x : A} B    Δ ⊢ a : A
 ------------------------------------ APP
-ctx |- (f a) : [a/x]B
+Γ, Δ ⊢ (f a) : [a/x]B
 
-ctx |- A : Type
+Γ, x : A ⊢ f : B
+-------------------------- LAM
+Γ ⊢ [x : A] f : {x : A} B
+
+Γ ⊢ A : Type
 ---------------- BOX
-ctx |- !A : Type
+Γ ⊢ !A : Type
 
-ctx |- a : A
--------------- PUT
-!ctx |- #a : !A
+x1 : A1, ..., xn : An ⊢ b : B
+--------------------------------------------------------- PUT
+x1 : !A1, ..., xn : !An ⊢ [x1 = x1] ... [xn = xn] #b : !B
 
-ctx |- a : !A   ctx, x : A |- b : B
------------------------------------ DUP
-ctx |- [x = a] b : [a/x]B
+Γ, x1 : !A, ..., xn : !A ⊢ b : B
+--------------------------------------------------------------- DUP
+Γ, x : !A ⊢ [x = x] [#x/x1, ..., #x/xn]b : [#x/x1, ..., #x/xn]B
 
-ctx, x : A |- A : Type
+Γ, x : A ⊢ A : Type
 ---------------------- SLF
-ctx |- $x A : Type
+Γ ⊢ $x A : Type
 
-ctx |- a : [a/x]A
+Γ ⊢ a : [a/x]A
 ---------------------- NEW
-ctx |- @ $x A a : $x A
+Γ ⊢ @ $x A a : $x A
 
-ctx |- a : $x A
+Γ ⊢ a : $x A
 ------------------ USE
-ctx |- ~a : [a/x]A
+Γ ⊢ ~a : [a/x]A
 ```
 
 
-The first 5 rules are just the plain Calculus of Constructions. Notice that we have `Type : Type`, which should not introduce an inconsistency (see below). The next 3 rules enable implicit duplication, giving EA-TT the power to express Church iteration (i.e., bounded for-loops, recursion, etc.). The last 3 rules are Self-Types, allowing EA-TT to express inductive datatypes. Finally, we also allow mutually recursive definitions inside types and erased positions, which isn't shown here.
+The first 7 rules are just the plain Calculus of Constructions. Notice that we have `Type : Type`, which should not introduce an inconsistency (see below). The next 3 rules enable implicit duplication, giving EA-TT the power to express Church iteration (i.e., bounded for-loops, recursion, etc.). The last 3 rules are Self-Types, allowing EA-TT to express inductive datatypes. Finally, we also allow mutually recursive definitions inside types and erased positions, which isn't shown here.
 
 ## Examples
 
