@@ -12,30 +12,30 @@ var ::=
 
 term ::=
   -- Language
-  var                -- VAR: a variable
-  Type               -- TYP: the type of types
+  var                   -- VAR: a variable
+  Type                  -- TYP: the type of types
   def var: term         -- DEF: a recursive definition
-  let var = term       -- LET: a non-recursive definition
+  let var = term        -- LET: a non-recursive definition
 
   -- Functions
   {var : term} -> term  -- ALL: dependent function type
   {var : term} => term  -- LAM: dependent function value
-  (term term)        -- APP: dependent function application
+  (term term)           -- APP: dependent function application
 
   -- Functions (erased)
   {-var : term} -> term -- ALL: dependent function type (erased)
   {-var : term} => term -- LAM: dependent function value (erased)
-  (term -term)       -- APP: dependent function application (erased)
+  (term -term)          -- APP: dependent function application (erased)
 
   -- Duplications
-  !term         -- BOX: boxed type
-  #term         -- PUT: boxed value
+  !term                 -- BOX: boxed type
+  #term                 -- PUT: boxed value
   dup var = term; term  -- DUP: boxed duplication
 
   -- Self
-  $var term         -- SLF: self type
-  @term term        -- NEW: self value
-  ~term             -- USE: self instantiation
+  $var term             -- SLF: self type
+  @term term            -- NEW: self value
+  ~term                 -- USE: self instantiation
 ```
 
 Plus the stratification condition, which dictates that:
@@ -53,17 +53,17 @@ Plus the stratification condition, which dictates that:
 Computationally, EA-TT terms are erased to the [Elementary Affine Core](../EA-Core). The erasure `E(t)` of a EA-TT term to EA-CORE is defined as:
 
 ```javascript
-E(Type)      = {x} => x
-E(var)       = var
+E(Type)         = {x} => x
+E(var)          = var
 E({x : a} -> b) = {x} => x
 E({x : a} => b) = {x} => E(b)
-E((f x))     = (E(f) E(x))
-E(!a)        = {x} => x
-E(#a)        = #E(a)
+E((f x))        = (E(f) E(x))
+E(!a)           = {x} => x
+E(#a)           = #E(a)
 E(dup x = a; b) = dup x = E(a); E(b)
-E($x a)      = {x} => x
-E(@a b)      = E(b)
-E(~a)        = E(a)
+E($x a)         = {x} => x
+E(@a b)         = E(b)
+E(~a)           = E(a)
 ```
 
 ## Reduction rules
