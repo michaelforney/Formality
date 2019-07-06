@@ -50,3 +50,25 @@ def Bits.id: {n}
     (bs case_o case_i case_e go)
   let stop = {bs} bs
   (rec n #call #stop)
+
+def Bits.to_chars: {n}
+  let call = {go bs}
+    let case_o = {x go} (List.concat (to_chars "o") (go x))
+    let case_i = {x go} (List.concat (to_chars "i") (go x))
+    let case_e = {go} List.nil
+    (bs case_o case_i case_e go)
+  let stop = {bs} List.nil
+  (rec n #call #stop)
+
+def Bits.to_string: {n}
+  dup to_chars = (Bits.to_chars n)
+  # {bits} (from_chars (to_chars bits))
+
+def Bits.to_cat: {n}
+  let call = {go bits} (bits
+    {bs} {go} (Cat.mul ~2 (go bs))
+    {bs} {go} (Cat.succ (Cat.mul ~2 (go bs)))
+    {go} ~0
+    go)
+  let stop = {bits} ~0
+  (rec n #call #stop)

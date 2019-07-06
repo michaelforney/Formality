@@ -1,148 +1,114 @@
-// TODO: update this whole file
+// Term
+def Lam: {body}      {Lam App Var} (Lam body)
+def App: {func argm} {Lam App Var} (App func argm)
+def Var: {indx}      {Lam App Var} (Var indx)
 
-// Formality implementation in Formality-Core (ongoing work)
+def Term.ex:
 
-// Example usage of this library
+  // Library functions
+  let max_len   = ~65536
+  dup reduce    = (Term.reduce max_len)
+  dup normal    = (Term.normal max_len #reduce)
+  dup quote     = (Term.quote max_len)
+  dup to_string = (Term.quoted.to_string max_len)
 
-def term_example:
-  dup true_t    = #(Lam {t} (Lam {f} t))
-  dup false_t   = #(Lam {t} (Lam {f} f))
-  dup not_t     = #(Lam {b} (App (App b false_t) true_t))
-  dup main_t    = #(App not_t (App not_t (App not_t true_t)))
-  dup reduce    = (reduce ~256)
-  dup to_string = (to_string ~256)
-  # [
-    ["term:", (to_string main_t)],
-    ["norm:", (to_string (reduce (main_t)))]]
+  // Example terms
+  dup TRUE  = #(Lam {t} (Lam {f} t))
+  dup FALSE = #(Lam {t} (Lam {f} f))
+  dup NOT2  = #(Lam {b} (App (App b FALSE) TRUE))
+  dup NOT   = #(Lam {b} (Lam {t} (Lam {f} (App (App b f) t))))
+  dup NOTS  = (~1000 #(App NOT2))
 
-// Scott-encoded functions
+  # (to_string (normal (reduce (NOTS TRUE))))
 
-def Lam: {body}
-  {Lam App Var}
-  (Lam body)
+def Term.quote: {mlen}
+  let call = {go indx term}
+    cpy indx = indx
+    let case_lam = {body} {go}
+      get [go, body] = (go |indx + 1| (body (Var indx)))
+      [go, (Lam body)]
+    let case_app = {func argm} {go}
+      get [go, func] = (go indx func)
+      get [go, argm] = (go indx argm)
+      [go, (App func argm)]
+    let case_var = {indx} {go}
+      [go, (Var indx)]
+    (term case_lam case_app case_var go)
+  let stop = {indx term}
+    [{x}x, (Var 0)]
+  dup func = (rec mlen #call #stop)
+  # {term}
+    (snd (func 0 term))
 
-def App: {func argm}
-  {Lam App Var}
-  (App func argm)
+def Term.quoted.to_string: {mlen}
+  let name = {indx}
+    let char = (Num.box_byte ||indx % 26| + 97|)
+    (List.cons char List.nil)
+  let call = {go term}
+    let case_lam = {body} {go}
+      get [go, body] = (go body)
+      let text = List.nil
+      let text = (List.concat text (to_chars "{}"))
+      let text = (List.concat text body)
+      [go, text]
+    let case_app = {func argm} {go}
+      get [go, func] = (go func)
+      get [go, argm] = (go argm)
+      let text = List.nil
+      let text = (List.concat text (to_chars "("))
+      let text = (List.concat text func)
+      let text = (List.concat text (to_chars " "))
+      let text = (List.concat text argm)
+      let text = (List.concat text (to_chars ")"))
+      [go, text]
+    let case_var = {indx} {go}
+      [go, (name indx)]
+    (term case_lam case_app case_var go)
+  let stop = {term}
+    [{x}x, term]
+  dup func = (rec mlen #call #stop)
+  # {term}
+    (from_chars (snd (func term)))
 
-def Var: {indx}
-  {Lam App Var}
-  (Var indx)
+def Term.reduce: {mlen}
+  let call = {go term}
+    let case_lam = {body} {go}
+      [go, (Lam body)]
+    let case_app = {func argm} {go}
+      let case_lam   = {f_body}        {argm go} get [go, body] = (go (f_body argm)) [go, body]
+      let case_app   = {f_func f_argm} {argm go} get [go, argm] = (go argm) [go, (App (App f_func f_argm) argm)]
+      let case_var   = {f_indx}        {argm go} get [go, argm] = (go argm) [go, (App (Var f_indx) argm)]
+      get [go, func] = (go func)
+      (func case_lam case_app case_var argm go)
+    let case_var = {indx} {go}
+      [go, (Var indx)]
+    (term case_lam case_app case_var go)
+  let stop = {term}
+    [{x}x, (Var 0)]
+  dup func = (rec mlen #call #stop)
+  # {term}
+    (snd (func term))
 
-// Church-encoded functions
+def Term.normal: {mlen redx}
+  dup redx = redx
+  let call = {go indx term}
+    cpy indx = indx
+    let case_lam = {body} {go}
+      get [go, body] = (go |indx + 1| (body (Var indx)))
+      [go, (Lam body)]
+    let case_app = {func argm} {go}
+      get [go, func] = (go indx func)
+      get [go, argm] = (go indx argm)
+      [go, (App func argm)]
+    let case_var = {indx} {go}
+      [go, (Var indx)]
+    let term = (redx term)
+    (term case_lam case_app case_var go)
+  let stop = {indx term}
+    [{x}x, (Var 0)]
+  dup func = (rec mlen #call #stop)
+  # {term}
+    (snd (func 0 term))
 
-def LamF: {body}
-  {Lam App Var}
-  dup Lam  = Lam
-  dup App  = App
-  dup Var  = Var
-  dup body = (body #Lam #App #Var)
-  # (Lam body)
-
-def AppF: {func argm}
-  {Lam App Var}
-  dup Lam  = Lam
-  dup App  = App
-  dup Var  = Var
-  dup func = (func #Lam #App #Var)
-  dup argm = (argm #Lam #App #Var)
-  # (App func argm)
-
-def VarF: {indx}
-  {Lam App Var}
-  dup Lam  = Lam
-  dup App  = App
-  dup Var  = Var
-  dup indx = indx
-  # (Var indx)
-
-// This is how we convert from Scott to Church in O(len).
-def term_fold_f: {len Lam App Var}
-  dup Lam = Lam
-  dup App = App
-  dup Var = Var
-  let func = {cont term}
-    let case_lam = {body cont}
-      get [cont, body] = (cont body)
-      [cont, (Lam body)]
-    let case_app = {func argm cont}
-      get [cont, func] = (cont func)
-      get [cont, argm] = (cont argm)
-      [cont, (App func argm)]
-    let case_var = {indx cont}
-      [cont, (Var indx)]
-    (term case_lam case_app case_var cont)
-  dup fold = (len #func)
-  # {term} (snd (fold {term}[{x}x,term] term))
-
-// Non-fused version of the function above.
-def term_fold: {len}
-  dup fold_f = (term_fold_f len #LamF #AppF #VarF)
-  # {term} (fold_f term_test)
-
-def term_to_string: {len}
-  let case_lam = {body}
-    (List.concat (to_chars "λ") body)
-  let case_app = {func argm}
-    (List.concat (to_chars "(")
-    (List.concat func
-    (List.concat (to_chars " ")
-    (List.concat argm (to_chars ")")))))
-  let case_var = {indx}
-    (to_chars (Count.to_string indx))
-  dup fold_f = (term_fold_f len #case_lam #case_app #case_var)
-  # {term} (from_chars (fold_f term))
-  
-def reduce: {len}
-  let func = {cont term}
-    let lam_case = {body cont}
-      [cont, (Lam body)]
-    let app_case = {func argm cont}
-      let lam_case = {fbody argm cont} 
-        get [cont, term] = (cont (fbody argm))
-        [cont, term]
-      let app_case = {ffunc fargm argm cont}
-        get [cont, argm] = (cont argm)
-        [cont, (App (App ffunc fargm) argm)]
-      let var_case = {findx argm cont}
-        [cont, findx]
-      get [cont, func] = (cont func)
-      (func lam_case app_case var_case argm cont)
-    let var_case = {indx cont}
-      [cont, (Var indx)]
-    (term lam_case app_case var_case cont)
-  dup fold = (len #func)
-  # {term} (snd (fold {term}[{x}x,term] term))
-
-def to_string: {len}
-  let TERM_TO_CHARS = {a b}a
-  let NUMB_TO_CHARS = {a b}b
-  let init = {term} [{x}x, term]
-  let loop = {call name}
-    let term_to_chars = {call term dept}
-      let lam_case = {body call dept}
-        cpy dept         = dept
-        get [call, body] = (call TERM_TO_CHARS (body (Var dept)) |dept + 1|)
-        [call, (List.concat (to_chars "λ") body)]
-      let app_case = {func argm call dept}
-        cpy dept         = dept
-        get [call, func] = (call TERM_TO_CHARS func dept)
-        get [call, argm] = (call TERM_TO_CHARS argm dept)
-        [call, (List.concat (to_chars "(") (List.concat func (List.concat (to_chars " ") (List.concat argm (to_chars (")"))))))]
-      let var_case = {indx call dept}
-        get [call, indx] = (call NUMB_TO_CHARS indx)
-        [call, indx]
-      (term lam_case app_case var_case call dept)
-    let numb_to_chars = {call num}
-      let succ_case = {pred call}
-        get [call, pred] = (call NUMB_TO_CHARS pred)
-        [call, (List.concat (to_chars "S") pred)]
-      let zero_case = {call}
-        [call, (to_chars "Z")]
-      cpy num = num
-      (if |num > 0| [(succ_case |num - 1|),zero_case] call)
-    (name term_to_chars numb_to_chars call)
-  let stop = {call term}
-    get [call, chrs] = (call TERM_TO_CHARS term 0)
-    (from_chars chrs)
-  (for len #init #loop #stop)
+def term:
+  Term.ex

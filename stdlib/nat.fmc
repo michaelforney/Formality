@@ -7,3 +7,26 @@ def Nat.zero:
 def Nat.succ: {pred}
   {Succ Zero}
   (Succ pred)
+
+def Nat.to_chars: {n}
+  let call = {go} {nat}
+    let case_succ = {n} (List.concat (to_chars "S") (go n))
+    let case_zero = (to_chars "Z")
+    (nat case_succ case_zero)
+  let stop = {nat} List.nil
+  (n #call #stop)
+
+def Nat.to_string: {n}
+  dup func = (Nat.to_chars n)
+  # {n} (from_chars (func n))
+
+def Nat.copy: {n}
+  let call = {go} {nat}
+    let case_succ = {n ns}
+      get [n0, n1] = ns
+      (go n [(Nat.succ n0), (Nat.succ n1)])
+    let case_zero = {ns} ns
+    (nat case_succ case_zero)
+  let stop = {n ns} ns
+  dup func = (rec n #call #stop)
+  # {n} (func n [Nat.zero, Nat.zero])

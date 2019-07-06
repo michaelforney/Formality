@@ -91,6 +91,20 @@ def Num.box: {n}
     (b07 (b06 (b05 (b04 (b03 (b02 (b01 (b00
       0))))))))))))))))))))))))))))))))
 
+def Num.to_chars: {mlen}
+  let call = {go n list}
+    cpy n    = n
+    let list = (List.cons (Num.box_byte (Num.to_char |n % 10|)) list)
+    (go |n / 10| list)
+  let stop = {n list}
+    list
+  dup func = (rec mlen #call #stop)
+  # {n} (func n List.nil)
+
+def Num.to_string: {mlen}
+  dup to_chars = (Num.to_chars mlen)
+  # {num} (from_chars (to_chars num))
+
 def Num.from_nat: {n}
   dup fold = (n #{x}|x + 1|)
   # (fold 0)
@@ -109,5 +123,12 @@ def Num.fib: {n}
     (snd state)
   (for n #init #loop #stop)
 
-def num:
-  Num.ex
+//def Num.box2:
+  //let call = {go n}
+    //cpy n = n
+    //dup r = (go |n / 2|)
+    //if |n & 1|
+    //then: #||r * 2| + 1|
+    //else: #|r * 2|
+  //let stop = {n} #0
+  //(rec ~32 #call #stop)
