@@ -8,8 +8,8 @@ def Bits.ex:
   dup val = (rec len #Bits.o #Bits.e)
   dup inc = (Bits.inc len)
   dup bid = (Bits.id len)
-  dup fun = (~10000 #inc)
-  # (bid (inc val))
+  dup fun = (~1000000 #inc)
+  # (bid (fun val))
 
 // Bits
 // | Bitstrings
@@ -44,9 +44,9 @@ def Bits.inc: {n}
 //     Bits
 def Bits.id: {n}
   let call = {go bs}
-    let case_o = Bits.o
-    let case_i = Bits.i
-    let case_e = Bits.e
-    (bs case_o case_i case_e)
+    let case_o = {x go} (Bits.o (go x))
+    let case_i = {x go} (Bits.i (go x))
+    let case_e = {go} Bits.e
+    (bs case_o case_i case_e go)
   let stop = {bs} bs
   (rec n #call #stop)
