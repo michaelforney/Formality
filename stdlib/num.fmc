@@ -1,33 +1,25 @@
-// Gets the nth number of the Fibonacci sequence
-def fib: {n}
-  let init = [0,1]
-  let loop = {state}
-    get [a, b] = state
-    cpy b      = b
-    [b, |a + b|]
-  let stop = {state}
-    (snd state)
-  (for n #init #loop #stop)
+def Num.ex:
+  (Num.fib ~100000)
 
-def boxed_add: {x y}
+def Num.boxed_add: {x y}
   dup x = x
   dup y = y
   # |x + y|
 
-def num_dif: {a b}
+def Num.dif: {a b}
   cpy a = a
   cpy b = b
   if |a > b|
   then: |a - b|
   else: |b - a|
 
-def num_to_char: {n}
+def Num.to_char: {n}
   cpy n = n
   if |n < 10|
   then: |n + 48|
   else: |n + 87|
 
-def max: {a b}
+def Num.max: {a b}
   cpy a = a
   cpy b = b
   if |a > b| then:
@@ -35,7 +27,7 @@ def max: {a b}
   else:
     b
 
-def min: {a b}
+def Num.min: {a b}
   cpy a = a
   cpy b = b
   if |a < b| then:
@@ -43,9 +35,9 @@ def min: {a b}
   else:
     b
 
-// box_byte
+// Num.box_byte
 // : {n : Num} !Num
-def box_byte: {n}
+def Num.box_byte: {n}
   cpy n = n
   dup b00 = if ||n >>  0| & 1| [#{x}|x + 0x1|, #{x}x]
   dup b01 = if ||n >>  1| & 1| [#{x}|x + 0x2|, #{x}x]
@@ -57,9 +49,9 @@ def box_byte: {n}
   dup b07 = if ||n >>  7| & 1| [#{x}|x + 0x80|, #{x}x]
   # (b07 (b06 (b05 (b04 (b03 (b02 (b01 (b00 0))))))))
 
-// box_num
+// Num.box
 // : {n : Num} !Num
-def box_num: {n}
+def Num.box: {n}
   cpy n = n
   dup b00 = if ||n >>  0| & 1| [#{x}|x + 0x1|, #{x}x]
   dup b01 = if ||n >>  1| & 1| [#{x}|x + 0x2|, #{x}x]
@@ -99,9 +91,23 @@ def box_num: {n}
     (b07 (b06 (b05 (b04 (b03 (b02 (b01 (b00
       0))))))))))))))))))))))))))))))))
 
-def num_from_nat: {n}
+def Num.from_nat: {n}
   dup fold = (n #{x}|x + 1|)
   # (fold 0)
 
-def sqrt: {n}
+def Num.sqrt: {n}
   |n ^^ 2147483648|
+
+// Gets the nth number of the Fibonacci sequence
+def Num.fib: {n}
+  let init = [0,1]
+  let loop = {state}
+    get [a, b] = state
+    cpy b      = b
+    [b, |a + b|]
+  let stop = {state}
+    (snd state)
+  (for n #init #loop #stop)
+
+def num:
+  Num.ex

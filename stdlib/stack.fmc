@@ -1,0 +1,32 @@
+// Pushes 1, 2, 3 to a stack, and pops two values, [3, 2].
+def Stack.ex:
+  let stack      = Stack.new
+  let stack      = (Stack.push 1 stack)
+  let stack      = (Stack.push 2 stack)
+  let stack      = (Stack.push 3 stack)
+  get [stack, x] = (Stack.pop  0 stack)
+  get [stack, y] = (Stack.pop  0 stack)
+  [x, y]
+
+// A stack
+// TODO: annotate type (follow Bits.fmc)
+def Stack.push: {x xs} {Push New} (Push x xs)
+def Stack.new:         {Push New} New
+
+// TODO: annotate type (follow Bits.fmc)
+def Stack.head: {default stack}
+  let case_push = {x rest} x
+  let case_new  = default
+  (stack case_push case_new)
+
+// TODO: annotate type (follow Bits.fmc)
+def Stack.tail: {stack}
+  let case_push = {x rest} rest
+  let case_nil  = Nil
+  (stack case_push case_nil)
+
+// TODO: annotate type (follow Bits.fmc)
+def Stack.pop: {default stack}
+  let case_push = {x rest} [rest, x]
+  let case_new  = [Stack.new, default]
+  (stack case_push case_new)

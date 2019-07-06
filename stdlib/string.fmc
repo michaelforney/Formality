@@ -1,3 +1,5 @@
+// TODO: update this whole file
+
 def TEXT: 1954047348
 
 // Converts an UTF-8 string into a list of bytes
@@ -44,4 +46,4 @@ def from_chars: {chars}
   [TEXT, nums]
 
 def string_concat: {a b}
-  (from_chars (concat (to_chars a) (to_chars b)))
+  (from_chars (List.concat (to_chars a) (to_chars b)))

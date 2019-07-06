@@ -1,0 +1,14 @@
+// Terms so common that they "deserve" a global, non-namespaced name
+
+// Bounded function.
+def rec: {nat call stop}
+  dup callN = (nat call)
+  dup stop  = stop
+  # (callN stop)
+
+// Bounded for-loop
+def for: {nat init loop stop}
+  dup init = init
+  dup exec = (nat loop)
+  dup stop = stop
+  # (stop (exec init))

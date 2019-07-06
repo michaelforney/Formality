@@ -1,15 +1,30 @@
-// ::::::::::
-// :: Bool ::
-// ::::::::::
+// | This example achieves the fusion effect in a simple function, applying
+// | `not` `N` times to `true` in `O(log(N))` time.
+def Bool.ex:
+  dup val = Bool.true
+  dup fun = (~100000000 #Bool.not)
+  # (fun val)
 
-def true:
-  {t f} t
+// Bool
+// | Booleans
+// : $self
+//   {P : Bool -> Type} ->
+//   {o : (P Bool.true)} ->
+//   {i : (P Bool.false)} ->
+//   (P self)
+def Bool.true:  {t f} t
+def Bool.false: {t f} f
 
-def false:
-  {t f} f
-
-def not: {b}
+// Bool.not
+// | Boolean negation
+// : {b : Bool} -> Bool
+def Bool.not: {b}
   {t f} (b f t)
 
-def eql: {a b}
+// Bool.eql
+// | Boolean equality
+// : {b : Bool} -> Bool
+def Bool.eql: {a b}
   (a {x}x not b)
+
+// TODO: many other Bool functions

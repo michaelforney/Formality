@@ -1,3 +1,5 @@
+// TODO: update this whole file
+
 // Formality implementation in Formality-Core (ongoing work)
 
 // Example usage of this library
@@ -80,14 +82,14 @@ def term_fold: {len}
 
 def term_to_string: {len}
   let case_lam = {body}
-    (concat (to_chars "λ") body)
+    (List.concat (to_chars "λ") body)
   let case_app = {func argm}
-    (concat (to_chars "(")
-    (concat func
-    (concat (to_chars " ")
-    (concat argm (to_chars ")")))))
+    (List.concat (to_chars "(")
+    (List.concat func
+    (List.concat (to_chars " ")
+    (List.concat argm (to_chars ")")))))
   let case_var = {indx}
-    (to_chars (nat_to_string indx))
+    (to_chars (Count.to_string indx))
   dup fold_f = (term_fold_f len #case_lam #case_app #case_var)
   # {term} (from_chars (fold_f term))
   
@@ -121,12 +123,12 @@ def to_string: {len}
       let lam_case = {body call dept}
         cpy dept         = dept
         get [call, body] = (call TERM_TO_CHARS (body (Var dept)) |dept + 1|)
-        [call, (concat (to_chars "λ") body)]
+        [call, (List.concat (to_chars "λ") body)]
       let app_case = {func argm call dept}
         cpy dept         = dept
         get [call, func] = (call TERM_TO_CHARS func dept)
         get [call, argm] = (call TERM_TO_CHARS argm dept)
-        [call, (concat (to_chars "(") (concat func (concat (to_chars " ") (concat argm (to_chars (")"))))))]
+        [call, (List.concat (to_chars "(") (List.concat func (List.concat (to_chars " ") (List.concat argm (to_chars (")"))))))]
       let var_case = {indx call dept}
         get [call, indx] = (call NUMB_TO_CHARS indx)
         [call, indx]
@@ -134,7 +136,7 @@ def to_string: {len}
     let numb_to_chars = {call num}
       let succ_case = {pred call}
         get [call, pred] = (call NUMB_TO_CHARS pred)
-        [call, (concat (to_chars "S") pred)]
+        [call, (List.concat (to_chars "S") pred)]
       let zero_case = {call}
         [call, (to_chars "Z")]
       cpy num = num

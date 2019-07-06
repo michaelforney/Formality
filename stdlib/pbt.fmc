@@ -1,22 +1,22 @@
-def PBT0: {b n}
+def PBT.0: {b n}
   dup b = b
   dup n = n
   # n
 
-def PBT1: {b n}
+def PBT.1: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
   # A
 
-def PBT2: {b n}
+def PBT.2: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
   dup B = # (b A A)
   # B
 
-def PBT3: {b n}
+def PBT.3: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -24,7 +24,7 @@ def PBT3: {b n}
   dup C = # (b B B)
   # C
 
-def PBT4: {b n}
+def PBT.4: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -33,7 +33,7 @@ def PBT4: {b n}
   dup D = # (b C C)
   # D
 
-def PBT5: {b n}
+def PBT.5: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -41,9 +41,9 @@ def PBT5: {b n}
   dup C = # (b B B)
   dup D = # (b C C)
   dup E = # (b D D)
-  # PBT
+  # E
 
-def PBT6: {b n}
+def PBT.6: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -54,7 +54,7 @@ def PBT6: {b n}
   dup F = # (b E E)
   # F
 
-def PBT7: {b n}
+def PBT.7: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -66,7 +66,7 @@ def PBT7: {b n}
   dup G = # (b F F)
   # G
 
-def PBT8: {b n}
+def PBT.8: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -79,7 +79,7 @@ def PBT8: {b n}
   dup H = # (b G G)
   # H
 
-def PBT9: {b n}
+def PBT.9: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -93,7 +93,7 @@ def PBT9: {b n}
   dup I = # (b H H)
   # I
 
-def PBT10: {b n}
+def PBT.10: {b n}
   dup b = b
   dup n = n
   dup A = # (b n n)
@@ -106,4 +106,115 @@ def PBT10: {b n}
   dup H = # (b G G)
   dup I = # (b H H)
   dup J = # (b I I)
+  # J
+
+def PBT.11: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  dup J = # (b I I)
+  dup K = # (b J J)
+  # J
+
+def PBT.12: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  dup J = # (b I I)
+  dup K = # (b J J)
+  dup L = # (b K K)
+  # J
+
+def PBT.13: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  dup J = # (b I I)
+  dup K = # (b J J)
+  dup L = # (b K K)
+  dup M = # (b L L)
+  # J
+
+def PBT.14: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  dup J = # (b I I)
+  dup K = # (b J J)
+  dup L = # (b K K)
+  dup M = # (b L L)
+  dup N = # (b M M)
+  # J
+
+def PBT.15: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  dup J = # (b I I)
+  dup K = # (b J J)
+  dup L = # (b K K)
+  dup M = # (b L L)
+  dup N = # (b M M)
+  dup O = # (b N N)
+  # J
+
+def PBT.16: {b n}
+  dup b = b
+  dup n = n
+  dup A = # (b n n)
+  dup B = # (b A A)
+  dup C = # (b B B)
+  dup D = # (b C C)
+  dup E = # (b D D)
+  dup F = # (b E E)
+  dup G = # (b F F)
+  dup H = # (b G G)
+  dup I = # (b H H)
+  dup J = # (b I I)
+  dup K = # (b J J)
+  dup L = # (b K K)
+  dup M = # (b L L)
+  dup N = # (b M M)
+  dup O = # (b N N)
+  dup P = # (b O O)
   # J
