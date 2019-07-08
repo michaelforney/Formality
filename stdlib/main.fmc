@@ -61,5 +61,17 @@ def term_test:
 def array_test:
   array_example
 
+def utf8_test:
+  (to_codepoints "λ我希望")
+
+def utf8_conversion_test:
+  (codepoint_to_ncr (ncr_to_codepoint 955))
+
+def from_codepoints_test:
+  let string = "λabc"
+  let codepoints = (to_codepoints string)
+  [({x} (from_chars (to_chars [TEXT, x])) codepoints),
+  (from_codepoints codepoints)]
+
 def main:
   string_concat_test
