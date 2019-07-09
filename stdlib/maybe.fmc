@@ -1,12 +1,12 @@
 // TODO: update this file
 
-def None:
+def Maybe.None:
   {None Just}
   None
 
-def Just: {val}
+def Maybe.Just: {val}
   {None Just}
   (Just val)
 
-def maybe_concat: {a b}
+def Maybe.concat: {a b}
   (a b Just)

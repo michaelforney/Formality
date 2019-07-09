@@ -1,9 +1,9 @@
 // TODO: update this whole file
 
-def TEXT: 1954047348
+def String.TEXT: 1954047348
 
 // Converts an UTF-8 string into a list of bytes
-def to_chars: {str}
+def String.to_chars: {str}
   {Cons}
   dup Cons = Cons
   let Cons-non-0 = {c}
@@ -23,7 +23,7 @@ def to_chars: {str}
   # {nil} (f nil)
 
 // Converts a list of bytes back to an UTF-8 string
-def from_chars: {chars}
+def String.from_chars: {chars}
   let nums =
     {Cons}
     dup Cons = Cons
@@ -45,5 +45,5 @@ def from_chars: {chars}
     # {nil} (func {char indx}(Cons char nil) 0 0)
   [TEXT, nums]
 
-def string_concat: {a b}
+def String.concat: {a b}
   (from_chars (List.concat (to_chars a) (to_chars b)))
