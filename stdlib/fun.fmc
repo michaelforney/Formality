@@ -1,0 +1,32 @@
+// TODO add type annotations
+
+// | Identity function
+def Fun.id: {a} a
+
+// | Constant function
+def Fun.const: {a b}
+  a
+// | Flip arguments to a binary function
+def Fun.flip: {f a b}
+  (f b a)
+
+// | Compose two functions
+def Fun.compose: {bc ab a}
+  (bc (ab a))
+
+// | Reverse function application
+def Fun.rapp: {a ab}
+  (ab a)
+
+// | on bbc ab x y runs the binary function bbc on the results of applying unary function ab to two arguments x and y.
+def Fun.on: {bbc ab x y}
+  (bbc (ab x) (ab y))
+
+// | Convert a curried function to a function on pairs.
+def Fun.uncurry: {abc pair}
+  get [a, b] = pair
+  (abc a b)
+
+// | Convert a function on pairs to a curried function
+def Fun.curry: {f a b}
+  (f [a,b])
