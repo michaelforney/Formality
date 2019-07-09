@@ -1610,4 +1610,4 @@ dup new_board = #
     [#HERO_F,
      0]]]]]]]]]]]]]]]]]]]]]]]]
 
-  # test_end_turn
+  # exports
