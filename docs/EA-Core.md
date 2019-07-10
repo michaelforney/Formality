@@ -2,7 +2,7 @@
 
 An efficient calculus, similar to the λ-calculus, but based on Elementary Affine Logic, with two desirable features:
 
-1. It is terminating without types (and in elementary time).
+1. It is terminating without types.
 
 2. It is compatible with efficient optimal reductions (without costly book-keeping).
 
