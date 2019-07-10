@@ -1,4 +1,10 @@
-def keccak.f_loop: {arr} {t}
+// Keccak hash function
+
+// Computes the Keccak256 of "random hash"
+def Keccak.ex:
+  (Keccak.bytes_to_hex (Keccak.256 (to_chars "random hash")))
+
+def Keccak.f_loop: {arr} {t}
   (arr {n
     a00 a01 a02 a03 a04 a05 a06 a07 a08 a09
     a10 a11 a12 a13 a14 a15 a16 a17 a18 a19
@@ -296,7 +302,7 @@ def keccak.f_loop: {arr} {t}
       #a30 #a31 #a32 #a33 #a34 #a35 #a36 #a37 #a38 #a39
       #a40 #a41 #a42 #a43 #a44 #a45 #a46 #a47 #a48 #a49))
 
-def keccak.f: {arr}
+def Keccak.f: {arr}
   dup arr = arr
   // transform array of 200 bytes into an array of 50 words
   dup arr =
@@ -304,7 +310,7 @@ def keccak.f: {arr}
     let loop = {arr} {cont t} (arr {k} {b1 b2 b3 b4} (cont (k (2num b1 b2 b3 b4))) t)
     dup f = (for ~50 #{cont t} (cont t) #loop #{k} (k {x} x))
     #{t} (arr (f t))
-  dup arr = (for ~24 #(pushfront 0 arr) #keccak.f_loop #popfront)
+  dup arr = (for ~24 #(Tup.pushfront 0 arr) #Keccak.f_loop #Tup.popfront)
   // transform array of 50 words into an array of 50 tuples of 4 bytes
   dup arr =
     let 2bytes = {x} {t}
@@ -332,14 +338,14 @@ def keccak.f: {arr}
     #(arr f)
   #arr
 
-def update_zero: {t k} (k t)
-def pushfront_update: {f update} {t k} {x} (update (t (f x)) k)
-def pushback_update: {f update} {t k} (update t {tup} {x} (k (tup (f x))))
-def apply_update: {update arr} {t} (arr (update t {x} x))
+def Keccak.update_zero: {t k} (k t)
+def Keccak.pushfront_update: {f update} {t k} {x} (update (t (f x)) k)
+def Keccak.pushback_update: {f update} {t k} (update t {tup} {x} (k (tup (f x))))
+def Keccak.apply_update: {update arr} {t} (arr (update t {x} x))
 
-def Keccak256: {bytes}
-  let state = (for ~200 #{t} t #(pushfront #0) #{x} x)
-  let update = update_zero
+def Keccak.256: {bytes}
+  let state = (for ~200 #{t} t #(Tup.pushfront #0) #{x} x)
+  let update = Keccak.update_zero
   let fold_cons = {x h i state update F}
     cpy i = i
     (if ||i % 136| == 135|
@@ -348,38 +354,37 @@ def Keccak256: {bytes}
       dup state = state
       dup update = update
       dup F = F
-      (h |i + 1| #(F (apply_update (pushback_update {y} |x ^ y| update) state)) #update_zero #F)
+      (h |i + 1| #(F (Keccak.apply_update (Keccak.pushback_update {y} |x ^ y| update) state)) #Keccak.update_zero #F)
     else: {x h i state update F}
       dup x = x
       dup update = update
-      (h |i + 1| state #(pushback_update {y} |x ^ y| update) F)
+      (h |i + 1| state #(Keccak.pushback_update {y} |x ^ y| update) F)
     x h i state update F)
   let fold_nil = {i state update F}
     dup state = state
     dup update = update
     dup F = F
-    dup state = #(apply_update (pushback_update {y} |y ^ 1| update) state)
+    dup state = #(Keccak.apply_update (Keccak.pushback_update {y} |y ^ 1| update) state)
     // xor the position 135 of the state with 0x80
     dup state =
       dup f = (for ~135 #{t x} (t |x ^ 128|) #{fun t x} (fun (t x)) #{x} x)
       #{t} (state (f t))
     dup state = #(F state)
     #(state {a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 a17 a18 a19 a20 a21 a22 a23 a24 a25 a26 a27 a28 a29 a30 a31 a32 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -}
-      (ConsF a1 (ConsF a2 (ConsF a3 (ConsF a4 (ConsF a5 (ConsF a6 (ConsF a7 (ConsF a8 (ConsF a9 (ConsF a10 (ConsF a11 (ConsF a12 (ConsF a13 (ConsF a14 (ConsF a15 (ConsF a16 (ConsF a17 (ConsF a18 (ConsF a19 (ConsF a20 (ConsF a21 (ConsF a22 (ConsF a23 (ConsF a24 (ConsF a25 (ConsF a26 (ConsF a27 (ConsF a28 (ConsF a29 (ConsF a30 (ConsF a31 (ConsF a32 NilF)))))))))))))))))))))))))))))))))
+      (List.cons a1 (List.cons a2 (List.cons a3 (List.cons a4 (List.cons a5 (List.cons a6 (List.cons a7 (List.cons a8 (List.cons a9 (List.cons a10 (List.cons a11 (List.cons a12 (List.cons a13 (List.cons a14 (List.cons a15 (List.cons a16 (List.cons a17 (List.cons a18 (List.cons a19 (List.cons a20 (List.cons a21 (List.cons a22 (List.cons a23 (List.cons a24 (List.cons a25 (List.cons a26 (List.cons a27 (List.cons a28 (List.cons a29 (List.cons a30 (List.cons a31 (List.cons a32 List.nil)))))))))))))))))))))))))))))))))
   dup fold = (bytes #fold_cons)
-# (fold fold_nil 0 state #update #keccak.f)
+# (fold fold_nil 0 state #update #Keccak.f)
 
-def bytes_to_hex: {xs}
+def Keccak.bytes_to_hex: {xs}
   (from_chars
   {Cons}
   dup Cons = Cons
   dup fold =
     (xs #{x h}
       cpy x = x
-      let a0 = (num_to_char |x % 16|)
-      let a1 = (num_to_char |x / 16|)
+      let a0 = (Num.to_char |x % 16|)
+      let a1 = (Num.to_char |x / 16|)
       (Cons a1 (Cons a0 h)))
   #{n} (fold n))
 
-def stringtest: "random hash"
-def keccaktest: (bytes_to_hex (Keccak256 (to_chars stringtest)))
+def keccak: Keccak.ex

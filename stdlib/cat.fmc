@@ -1,0 +1,71 @@
+// Church Natural Numbers
+
+// Computes `123^1000 mod 137` in `6m` graph-rewrites.
+def Cat.ex:
+  let a = ~123
+  let x = ~1000
+  let N = ~137
+  (exp_mod #a x #N)
+
+def Cat.zero: {s}
+  # {z} z
+
+def Cat.succ: {n} {s}
+  dup s = s
+  dup f = (n #s)
+  # {z} (s (f z))
+
+def Cat.mul: {a b} {s} 
+  dup s = s
+  dup f = (a (b #s))
+  # {z} (f z)
+
+// Computes `a^x`
+def Cat.exp: {a x}
+  (x a)
+
+// Cat.to_nat
+// : {c : Cat} ->
+//   Nat
+def Cat.to_nat: {n}
+  let init = Zero
+  let loop = Succ
+  let stop = {x}x
+  (for n #init #loop #stop)
+
+// Cat.exp_mod
+// | Computes `a^x mod n` (fast modular exponentiation with optimal reductions).
+// : {a : !Cat}
+//   {x : Cat}
+//   {N : !Cat}
+//   ! Cat
+def Cat.exp_mod: {a x N}
+
+  // Computes a^x
+  dup ax = (exp a x)
+
+  // Creates copies of N
+  dup N  = N
+
+  # // Creates an N-tuple with numbers from N-1 down to 0
+    dup numbers = (Tup.rev_range N) 
+
+    // Creates a function to get the last element of an N-tuple
+    dup get_last = (Tup.last N)
+
+    // Creates a function that rotates an N-tuple rightwise `ax` times
+    dup rotate_ax_times = (ax (Tup.rotate_right N))
+
+    // Rotates the numbers and returns the last element, i.e., `a^x mod N`
+    # (get_last (rotate_ax_times numbers))
+
+def Cat.to_bits: {n x}
+  dup bid  = (Bits.id ~n)
+  dup inc  = (Bits.inc ~n)
+  dup bits = (rec ~n #Bits.o #Bits.e)
+  dup func = (n #inc)
+  # (bid (func bits))
+
+def Cat.to_string: {n}
+  dup chars = (rec n #{x}(List.concat (to_chars "S") x) #(to_chars "Z"))
+  # (from_chars chars)

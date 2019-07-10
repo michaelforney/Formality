@@ -103,24 +103,24 @@ def kaelin:
   // :: Array ::
   // :::::::::::
 
-  let fold4   = (pbt_fold_array PBT4)
-  let fold6   = (pbt_fold_array PBT6)
-  let fold8   = (pbt_fold_array PBT8)
-  let init4   = (pbt_init_array PBT4)
-  let init6   = (pbt_init_array PBT6)
-  let init8   = (pbt_init_array PBT8)
-  dup with4   = (with ~4)
-  dup take4   = (take ~4)
-  dup update4 = (update ~4)
-  dup write4  = (write ~4)
-  dup with6   = (with ~6)
-  dup take6   = (take ~6)
-  dup update6 = (update ~6)
-  dup write6  = (write ~6)
-  dup with8   = (with ~8)
-  dup take8   = (take ~8)
-  dup update8 = (update ~8)
-  dup write8  = (write ~8)
+  let fold4   = (Arr.fold PBT.4)
+  let fold6   = (Arr.fold PBT.6)
+  let fold8   = (Arr.fold PBT.8)
+  let init4   = (Arr.init PBT.4)
+  let init6   = (Arr.init PBT.6)
+  let init8   = (Arr.init PBT.8)
+  dup with4   = (Arr.with ~4)
+  dup take4   = (Arr.take ~4)
+  dup update4 = (Arr.update ~4)
+  dup write4  = (Arr.write ~4)
+  dup with6   = (Arr.with ~6)
+  dup take6   = (Arr.take ~6)
+  dup update6 = (Arr.update ~6)
+  dup write6  = (Arr.write ~6)
+  dup with8   = (Arr.with ~8)
+  dup take8   = (Arr.take ~8)
+  dup update8 = (Arr.update ~8)
+  dup write8  = (Arr.write ~8)
 
   // :::::::::::::::
   // :: Direction ::
@@ -191,7 +191,7 @@ def kaelin:
     let half00 = [[[hero00,hero01],[hero02,hero03]],[[hero04,hero05],[hero06,hero07]]]
     let half01 = [[[hero08,hero09],[hero10,hero11]],[[hero12,hero13],[hero14,hero15]]]
     let heroes = [half00, half01]
-    (snd (take4 hero NilF heroes))
+    (snd (take4 hero List.nil heroes))
 
   // Given a hero, returns its max life
   dup get_hero_max_life = # {hero}
@@ -214,7 +214,7 @@ def kaelin:
     let half00 = [[[hero00,hero01],[hero02,hero03]],[[hero04,hero05],[hero06,hero07]]]
     let half01 = [[[hero08,hero09],[hero10,hero11]],[[hero12,hero13],[hero14,hero15]]]
     let heroes = [half00, half01]
-    (snd (take4 hero NilF heroes))
+    (snd (take4 hero List.nil heroes))
 
   // :::::::::::
   // :: Skill ::
@@ -270,55 +270,55 @@ def kaelin:
   dup IMPRISON       = # 59
 
   dup PRIORITY_LIST = #
-    (Cons MEMENTO
-    (Cons SILENCE
-    (Cons PROTECT
-    (Cons STEALTH_MOVE
-    (Cons TELEPORT
-    (Cons EARTH_ROOT
-    (Cons SHADOW_BOND
-    (Cons BALLISTA
-    (Cons EMPATHY
-    (Cons ESCORT
-    (Cons RESTORE
-    (Cons DETAIN
-    (Cons HASTE
-    (Cons STEALTH_STRIKE
-    (Cons REVENGE
-    (Cons JAVELIN
-    (Cons QUICK_BOLT_0
-    (Cons QUICK_BOLT_1
-    (Cons EARTH_WALL
-    (Cons SHADOW_TRAP
-    (Cons WRAP
-    (Cons KENLUA_WALK
-    (Cons SIRPIX_WALK
-    (Cons FLINA_WALK
-    (Cons SNARCH_WALK
-    (Cons ERKOS_WALK
-    (Cons CRONI_WALK
-    (Cons STANCI_WALK
-    (Cons GONK_WALK
-    (Cons TOPHORO_WALK
-    (Cons AGDRIS_WALK
-    (Cons MEWEN_WALK
-    (Cons ZAGATUR_WALK
-    (Cons FLY
-    (Cons DODGE
-    (Cons NEEDLE
-    (Cons EARTH_RISE
-    (Cons GROUND_SLAM
-    (Cons GUST
-    (Cons SLASH
-    (Cons FLAME_WAVE
-    (Cons FLAME_BALL
-    (Cons FLAME_NOVA
-    (Cons PSYCHOCK
-    (Cons IMPRISON
-    (Cons SHADOW_FLUX
-    (Cons LOCKPICK
-    (Cons SUMMON
-    Nil))))))))))))))))))))))))))))))))))))))))))))))))
+    (Stack.push MEMENTO
+    (Stack.push SILENCE
+    (Stack.push PROTECT
+    (Stack.push STEALTH_MOVE
+    (Stack.push TELEPORT
+    (Stack.push EARTH_ROOT
+    (Stack.push SHADOW_BOND
+    (Stack.push BALLISTA
+    (Stack.push EMPATHY
+    (Stack.push ESCORT
+    (Stack.push RESTORE
+    (Stack.push DETAIN
+    (Stack.push HASTE
+    (Stack.push STEALTH_STRIKE
+    (Stack.push REVENGE
+    (Stack.push JAVELIN
+    (Stack.push QUICK_BOLT_0
+    (Stack.push QUICK_BOLT_1
+    (Stack.push EARTH_WALL
+    (Stack.push SHADOW_TRAP
+    (Stack.push WRAP
+    (Stack.push KENLUA_WALK
+    (Stack.push SIRPIX_WALK
+    (Stack.push FLINA_WALK
+    (Stack.push SNARCH_WALK
+    (Stack.push ERKOS_WALK
+    (Stack.push CRONI_WALK
+    (Stack.push STANCI_WALK
+    (Stack.push GONK_WALK
+    (Stack.push TOPHORO_WALK
+    (Stack.push AGDRIS_WALK
+    (Stack.push MEWEN_WALK
+    (Stack.push ZAGATUR_WALK
+    (Stack.push FLY
+    (Stack.push DODGE
+    (Stack.push NEEDLE
+    (Stack.push EARTH_RISE
+    (Stack.push GROUND_SLAM
+    (Stack.push GUST
+    (Stack.push SLASH
+    (Stack.push FLAME_WAVE
+    (Stack.push FLAME_BALL
+    (Stack.push FLAME_NOVA
+    (Stack.push PSYCHOCK
+    (Stack.push IMPRISON
+    (Stack.push SHADOW_FLUX
+    (Stack.push LOCKPICK
+    (Stack.push SUMMON
+    Stack.new))))))))))))))))))))))))))))))))))))))))))))))))
 
   let get_skill_area = {skill}
     cpy skill = skill
@@ -342,7 +342,7 @@ def kaelin:
     dup build_array = (~64 #{state}
       get [array, state]  = state
       get [index, skills] = state
-      get [skills, skill] = (pop 63 skills)
+      get [skills, skill] = (Stack.pop 63 skills)
       cpy index           = index
       let array           = (write6 skill index array)
       [array, [|index + 1|, skills]])
@@ -499,9 +499,9 @@ def kaelin:
   // Given a unit, returns a readable stats line
   dup get_unit_info = # {unit}
     cpy unit      = unit
-    let case_void = NilF
-    let case_item = NilF
-    let case_goal = NilF
+    let case_void = List.nil
+    let case_item = List.nil
+    let case_goal = List.nil
     let case_hero =
       cpy hero = (get_unit_hero unit)
       cpy side = (get_unit_side unit)
@@ -511,20 +511,20 @@ def kaelin:
       cpy lock = (get_unit_lock unit)
       cpy mute = (get_unit_mute unit)
       cpy spec = (get_unit_spec unit)
-      (concat (get_hero_icon hero) // Hero name
-      (concat (to_chars " | ")
-      (concat (ConsF (box_byte (num_to_char ||life /  10| % 10|)) NilF) // life
-      (concat (ConsF (box_byte (num_to_char ||life /   1| % 10|)) NilF) // life
-      (concat (to_chars " | ")
-      (concat (ConsF (box_byte (num_to_char ||defs /  10| % 10|)) NilF) //defs 
-      (concat (ConsF (box_byte (num_to_char ||defs /   1| % 10|)) NilF) //defs 
-      (concat (to_chars " | ")
-      (concat (if side [(to_chars "black "),(to_chars "white ")])
-      (concat (if eff1 [(to_chars "(eff1) "), NilF])
-      (concat (if lock [(to_chars "(lock) "), NilF])
-      (concat (if mute [(to_chars "(mute) "), NilF])
-      (concat (if spec [(to_chars "(spec) "), NilF])
-              (ConsF #10 NilF))))))))))))))
+      (List.concat (get_hero_icon hero) // Hero name
+      (List.concat (to_chars " | ")
+      (List.concat (List.cons (Num.box_byte (Num.to_char ||life /  10| % 10|)) List.nil) // life
+      (List.concat (List.cons (Num.box_byte (Num.to_char ||life /   1| % 10|)) List.nil) // life
+      (List.concat (to_chars " | ")
+      (List.concat (List.cons (Num.box_byte (Num.to_char ||defs /  10| % 10|)) List.nil) //defs 
+      (List.concat (List.cons (Num.box_byte (Num.to_char ||defs /   1| % 10|)) List.nil) //defs 
+      (List.concat (to_chars " | ")
+      (List.concat (if side [(to_chars "black "),(to_chars "white ")])
+      (List.concat (if eff1 [(to_chars "(eff1) "), List.nil])
+      (List.concat (if lock [(to_chars "(lock) "), List.nil])
+      (List.concat (if mute [(to_chars "(mute) "), List.nil])
+      (List.concat (if spec [(to_chars "(spec) "), List.nil])
+              (List.cons #10 List.nil))))))))))))))
     (match_unit_kind unit case_void case_item case_goal case_hero)
 
   dup is_enemy = # {unit_a unit_b} (is_enemy_side (get_unit_side unit_a) (get_unit_side unit_b))
@@ -741,15 +741,15 @@ dup new_board = #
         (if |i == 0| then:
           {list} (Cons NEWLINE list)
         else: if ||i % 32| == 0| then:
-          {list} (Cons SPACE (Cons (num_to_char ||i - 1| / 32|) (Cons NEWLINE list)))
+          {list} (Cons SPACE (Cons (Num.to_char ||i - 1| / 32|) (Cons NEWLINE list)))
         else:
           {list} list
         (Cons x (xs |i + 1|))))
-      # {Nil} (fold {i}(Cons SPACE (Cons (num_to_char 15) Nil)) 0)
+      # {Nil} (fold {i}(Cons SPACE (Cons (Num.to_char 15) Nil)) 0)
     let fold_node = {lft rgt}
       get [lft_info, lft_board] = lft
       get [rgt_info, rgt_board] = rgt
-      [(concat lft_info rgt_info), (concat lft_board rgt_board)]
+      [(List.concat lft_info rgt_info), (List.concat lft_board rgt_board)]
     let fold_leaf = {unit}
       cpy unit = unit
       [(get_unit_info unit), (get_unit_icon unit)]
@@ -757,16 +757,16 @@ dup new_board = #
     # {board}
       get [info_text, board_text] = (fold board)
       (from_chars
-        (concat (ConsF NEWLINE NilF)
-        (concat (to_chars " 0 1 2 3 4 5 6 7 8 9 a b c d e f")
-        (concat (break_lines board_text)
-        (concat (ConsF NEWLINE NilF)
-        (concat (to_chars "HR | HP | DF |")
-        (concat (ConsF NEWLINE NilF)
-        (concat (to_chars "-- | -- | -- |")
-        (concat (ConsF NEWLINE NilF)
-        (concat info_text
-          (ConsF NEWLINE NilF)))))))))))
+        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat (to_chars " 0 1 2 3 4 5 6 7 8 9 a b c d e f")
+        (List.concat (break_lines board_text)
+        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat (to_chars "HR | HP | DF |")
+        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat (to_chars "-- | -- | -- |")
+        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat info_text
+          (List.cons NEWLINE List.nil)))))))))))
 
   // get_hero_position
   // | Returns the position of a hero on the board, if any
@@ -821,8 +821,8 @@ dup new_board = #
 
   // Given a position and a direction to step forward, move the element (if is possible) and return the updated map
   dup step = # {a_pos a_dxy board}
-    get [a_pos0,a_pos1] = (vec2_cpy a_pos)
-    let b_pos           = (vec2_add a_pos0 a_dxy)
+    get [a_pos0,a_pos1] = (V2.cpy a_pos)
+    let b_pos           = (V2.add a_pos0 a_dxy)
     (board_interact a_pos1 b_pos a_step_to_b board)
 
   // cast_area
@@ -839,14 +839,14 @@ dup new_board = #
     dup hits  = hits
     dup exec  = (area #{hpos state}
       get [state, cpos]  = state
-      get [cpos0, cpos1] = (vec2_cpy cpos)
-      get [hpos0, hpos1] = (vec2_cpy hpos)
+      get [cpos0, cpos1] = (V2.cpy cpos)
+      get [hpos0, hpos1] = (V2.cpy hpos)
       let new_state      = (hits cpos0 hpos0 state)
       [new_state, cpos1])
     # {cpos tpos}
-      get [cpos0, cpos1] = (vec2_cpy cpos)
-      get [tpos0, tpos1] = (vec2_cpy tpos)
-      if |(vec2_flat_dist cpos0 tpos0) < |range + 1||
+      get [cpos0, cpos1] = (V2.cpy cpos)
+      get [tpos0, tpos1] = (V2.cpy tpos)
+      if |(V2.flat_dist cpos0 tpos0) < |range + 1||
       then: {state} (fst (exec tpos1 [state, cpos1]))
       else: {state} state
 
@@ -863,19 +863,19 @@ dup new_board = #
     dup exec = (area #{hpos_dir state}
       get [hpos, dir]    = hpos_dir
       get [state, cpos]  = state
-      get [cpos0, cpos1] = (vec2_cpy cpos)
-      get [hpos0, hpos1] = (vec2_cpy hpos)
+      get [cpos0, cpos1] = (V2.cpy cpos)
+      get [hpos0, hpos1] = (V2.cpy hpos)
       let new_state      = (hits cpos0 hpos0 dir state)
       [new_state, cpos1])
     # {pos dir state}
-      get [cpos0, cpos1] = (vec2_cpy pos)
+      get [cpos0, cpos1] = (V2.cpy pos)
       get [state, cpos]  = (exec cpos0 dir [state, cpos1])
       state
 
   // Walks through a set of directions
   let walk = {range}
     let rang = range
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = {cpos tpos board}
       let effect = {caster target}
         cpy caster = caster
@@ -895,12 +895,12 @@ dup new_board = #
 
   dup tophoro_walk = (walk #3)
 
-  dup earth_root = (cast_area #32 vec2_range_0 # {cpos tpos board}
+  dup earth_root = (cast_area #32 V2.range_0 # {cpos tpos board}
     (board_update cpos {unit}(heal 20 (mute 3 (lock 3 unit))) board))
 
   dup earth_rise =
     let rang = #2
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = #{cpos tpos board} 
       let effect = {caster target}
         get [caster, target] = (dmge_enemy 2 caster target)
@@ -911,7 +911,7 @@ dup new_board = #
 
   dup earth_wall =
     let rang = #2
-    let area = vec2_range_1
+    let area = V2.range_1
     let wall = {unit}
       cpy unit = unit
       if |(get_unit_kind unit) == VOID|
@@ -946,20 +946,20 @@ dup new_board = #
 
   dup empathy = 
     let rang = #1
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = #{cpos tpos board} (board_interact cpos tpos (defs_ally 5) board)
     dup cast = (cast_area rang area hits)
     # {cpos tpos board}
-      get [cpos0, cpos1] = (vec2_cpy cpos)
+      get [cpos0, cpos1] = (V2.cpy cpos)
       let board          = (cast cpos1 tpos board)
       let board          = (board_update cpos0 (dmge 2) board)
       board
 
   dup revenge =
     let rang = #1
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = #{cpos tpos board}
-      get [cpos0, cpos1] = (vec2_cpy cpos)
+      get [cpos0, cpos1] = (V2.cpy cpos)
       get [board, life]  = (get_life_at cpos0 board)
       let effect         = (dmge_enemy ||40 - life| / 4|)
       (board_interact cpos1 tpos effect board)
@@ -967,9 +967,9 @@ dup new_board = #
 
   dup ground_slam =
     let rang = #0
-    let area = vec2_range_2
+    let area = V2.range_2
     let hits = #{cpos tpos board}
-      get [tpos0, tpos1] = (vec2_cpy tpos)
+      get [tpos0, tpos1] = (V2.cpy tpos)
       let effect         = {caster target}
         get [caster, target] = (dmge_enemy 2 caster target)
         get [caster, target] = (mute_enemy 1 caster target)
@@ -1007,19 +1007,19 @@ dup new_board = #
 
   dup restore =
     let rang = #3
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = #{cpos hpos board} (board_interact cpos hpos (heal_ally 3) board)
     (cast_area rang area hits)
 
   dup escort =
     let rang = #3
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = #{cpos hpos board} (board_interact cpos hpos (defs_ally 3) board)
     (cast_area rang area hits)
 
   dup detain =
     let rang = #3
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = #{cpos hpos board} (board_interact cpos hpos (mute_enemy 1) board)
     (cast_area rang area hits)
 
@@ -1047,24 +1047,24 @@ dup new_board = #
 
   dup flame_ball =
     let rang = #3
-    let area = vec2_range_2
+    let area = V2.range_2
     let hits = # {cpos hpos board} (board_interact cpos hpos (dmge_enemy 3) board)
     (cast_area rang area hits)
 
   dup flame_wave =
     let rang = #3
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = # {cpos hpos board} (board_interact cpos hpos (dmge_enemy 5) board)
     (cast_area rang area hits)
 
   dup flame_nova = 
     let rang = #0
-    let area = vec2_range_6
+    let area = V2.range_6
     let hits = #{cpos hpos board} (board_interact cpos hpos (dmge_enemy 15) board)
     dup cast = (cast_area rang area hits)
     # {cpos tpos board}
-      get [cpos0, cpos1] = (vec2_cpy cpos)
-      get [cpos2, cpos3] = (vec2_cpy cpos0)
+      get [cpos0, cpos1] = (V2.cpy cpos)
+      get [cpos2, cpos3] = (V2.cpy cpos0)
       let board          = (cast cpos2 cpos3 board)
       let board          = (board_update cpos1 (dmge 30) board)
       board
@@ -1101,7 +1101,7 @@ dup new_board = #
 
   dup shadow_trap = 
     let rang = #6
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = #{cpos hpos board}
       let put_trap = {unit}
         cpy unit = unit
@@ -1113,7 +1113,7 @@ dup new_board = #
 
   dup shadow_flux =
     let rang = #6
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = #{cpos tpos board} (board_interact cpos tpos (dmge_enemy 8) board)
     (cast_area rang area hits)
 
@@ -1148,13 +1148,13 @@ dup new_board = #
     (board_update pos mount board)
 
   dup quick_bolt_0 =
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = #{cpos hpos} (board_interact cpos hpos (dmge_enemy 2))
     let rngX = {rng} (cast_area rng area hits)
     dup rngA = (rngX #6)
     dup rngB = (rngX #12)
     # {cpos hpos board}
-      get [cpos0, cpos1]   = (vec2_cpy cpos)
+      get [cpos0, cpos1]   = (V2.cpy cpos)
       get [board, mounted] = (query_at cpos0 get_unit_spec board) 
       (if mounted [rngB, rngA] cpos1 hpos board)
 
@@ -1193,14 +1193,14 @@ dup new_board = #
     cpy spec          = if |spec == 0| [||cy << 4| | cx|, spec]
     cpy sx            = ||spec >> 0| & 0b1111|
     cpy sy            = ||spec >> 4| & 0b1111|
-    (if |(vec2_flat_dist [sx,sy] [tx,ty]) < |4 + 1||
+    (if |(V2.flat_dist [sx,sy] [tx,ty]) < |4 + 1||
       then: {board} (board_update [cx,cy] (set_unit_spec ||ty << 4| | tx|) board)
       else: {board} board
       board)
 
     dup stealth_strike =
       let rang = #0
-      let area = vec2_range_1
+      let area = V2.range_1
       let hits = {cpos hpos} (board_interact cpos hpos (dmge_enemy 3))
       let cast = (cast_area rang area hits)
       # {cpos nil board}
@@ -1242,14 +1242,14 @@ dup new_board = #
 
   dup haste =
     let rang = #0
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = # {cpos tpos} (board_interact cpos tpos (dmge_enemy 4))
     dup strike = (cast_area rang area hits)
     # {cpos tpos board}
-      get [cpos0, cpos1] = (vec2_cpy cpos)
-      get [tposA, tposB] = (vec2_cpy tpos)
-      get [tpos0, tpos1] = (vec2_cpy tposA)
-      get [tpos2, tpos3] = (vec2_cpy tposB)
+      get [cpos0, cpos1] = (V2.cpy cpos)
+      get [tposA, tposB] = (V2.cpy tpos)
+      get [tpos0, tpos1] = (V2.cpy tposA)
+      get [tpos2, tpos3] = (V2.cpy tposB)
       get [board, void]  = (is_void_at tpos0 board)
       (if void
         then: {board}
@@ -1263,7 +1263,7 @@ dup new_board = #
 
   dup dodge =
     let rang = #32
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = #{cpos tpos board}
       let effect = {caster target}
         cpy caster = caster
@@ -1277,7 +1277,7 @@ dup new_board = #
 
   dup slash =
     let rang = #1
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = # {cpos tpos} (board_interact cpos tpos (dmge_enemy 16))
     (cast_area rang area hits)
 
@@ -1311,19 +1311,19 @@ dup new_board = #
 
   dup javelin =
     let rang = #2
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = {cpos tpos} (board_interact cpos tpos (dmge_enemy 4))
     (cast_area rang area #hits)
 
   dup fly =
     let rang = #3
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = {cpos tpos} (board_interact cpos tpos a_step_to_b)
     (cast_area rang area #hits)
 
   dup gust =
     let rang = #2
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = # {cpos hpos board} (board_interact cpos hpos (dmge_enemy 3) board)
     (cast_area rang area hits)
 
@@ -1346,19 +1346,19 @@ dup new_board = #
 
   dup wrap =
     let rang = #0
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = #{cpos tpos board} (board_interact cpos tpos (lock_enemy 1) board)
     (cast_area rang area hits)
 
   dup needle =
     let rang = #0
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = # {cpos tpos board} (board_interact cpos tpos (dmge_enemy 3) board)
     (cast_area rang area hits)
 
   dup summon =
     let rang = #4
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = {cpos tpos board}
       let effect = {caster target}
         cpy caster = caster
@@ -1368,7 +1368,7 @@ dup new_board = #
           else: target
         [caster, target]
       (board_interact cpos tpos effect board)
-    (cast_area #2 vec2_range_0 #hits)
+    (cast_area #2 V2.range_0 #hits)
 
   let test_summon =
     let board = new_board
@@ -1385,19 +1385,19 @@ dup new_board = #
 
   dup silence =
     let rang = #32
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = {cpos tpos} (board_interact cpos tpos (mute_enemy 1))
     (cast_area rang area #hits)
 
   dup protect =
     let rang = #32
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = {cpos tpos} (board_interact cpos tpos (defs_ally 3))
     (cast_area rang area #hits)
 
   dup memento =
     let rang = #32
-    let area = vec2_range_2
+    let area = V2.range_2
     let hit0 = # {cpos tpos} (board_interact cpos tpos (mute_enemy 1))
     let hit1 = # {cpos tpos} (board_interact cpos tpos (lock_enemy 1))
     let hit2 = # {cpos tpos} (board_interact cpos tpos (dmge_enemy 2))
@@ -1450,19 +1450,19 @@ dup new_board = #
 
   dup teleport =
     let rang = #32
-    let area = vec2_range_0
+    let area = V2.range_0
     let hits = {cpos tpos} (board_interact cpos tpos a_step_to_b)
     (cast_area rang area #hits)
 
   dup psychock =
     let rang = #4
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = #{cpos tpos board} (board_interact cpos tpos (dmge_enemy 6) board)
     (cast_area rang area hits)
 
   dup imprison =
     let rang = #4
-    let area = vec2_range_1
+    let area = V2.range_1
     let hits = #{cpos tpos board} (board_interact cpos tpos (lock_enemy 2) board)
     (cast_area rang area hits)
 
@@ -1495,7 +1495,7 @@ dup new_board = #
   // :::::::::::
 
   // empty_cast
-  dup empty_cast = # Nil
+  dup empty_cast = # Stack.new
 
   let sort_casts = {casts} {Cons}
    dup Cons = Cons
@@ -1519,7 +1519,7 @@ dup new_board = #
     let case_cpos_none = {board}
       board
     let case_cpos_just = {cpos} {board}
-      get [cpos0, cpos1] = (vec2_cpy cpos)
+      get [cpos0, cpos1] = (V2.cpy cpos)
       get [board, unit]  = (get_at cpos0 board)
       let is_muted       = (get_unit_mute unit)
       (if is_muted
@@ -1580,7 +1580,7 @@ dup new_board = #
     let board = (cast [EARTH_WALL,[0xf,0x4]] board)
     let board = (cast [SHADOW_BOND,[0xe,0x2]] board)
     let board = (board_update [0x0,0xc] (lock 1) board)
-    let board = (end_turn board)
+    //let board = (end_turn board)
     (print_board board)
 
   dup exports =

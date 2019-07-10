@@ -1,55 +1,56 @@
-// :::::::::
-// :: Nat ::
-// :::::::::
+// Natural numbers
 
-// Church-encoded Nats are used to perform bounded loops and recursion.
-// See the examples on the end of the file to see how they work!
-
-def Zero:
+def Nat.zero:
   {Succ Zero}
   Zero
 
-def Succ: {pred}
+def Nat.succ: {pred}
   {Succ Zero}
   (Succ pred)
 
-def ZeroF:
-  {s}
-  # {z} z
+def Nat.to_chars: {n}
+  let call = {go} {nat}
+    let case_succ = {n} (List.concat (to_chars "S") (go n))
+    let case_zero = (to_chars "Z")
+    (nat case_succ case_zero)
+  let stop = {nat} List.nil
+  (n #call #stop)
 
-def SuccF: {n}
-  {s}
-  dup s = s
-  dup f = (n #s)
-  # {z} (s (f z))
+def Nat.to_string: {n}
+  dup func = (Nat.to_chars n)
+  # {n} (from_chars (func n))
 
-def mul: {a b}
-  {s} 
-  dup S = s
-  dup A =
-    dup B = (b #S)
-    (a #B)
-  # {z} (A z)
+def Nat.copy: {n}
+  let call = {go} {nat}
+    let case_succ = {n ns}
+      get [n0, n1] = ns
+      (go n [(Nat.succ n0), (Nat.succ n1)])
+    let case_zero = {ns} ns
+    (nat case_succ case_zero)
+  let stop = {n ns} ns
+  dup func = (rec n #call #stop)
+  # {n} (func n [Nat.zero, Nat.zero])
 
-// Bounded for-loop
-def for: {numb init loop stop}
-  dup init = init
-  dup exec = (numb loop)
-  dup stop = stop
-  # (stop (exec init))
+def Cmp.lt: {Lt Eq Gt} Lt
+def Cmp.eq: {Lt Eq Gt} Eq
+def Cmp.gt: {Lt Eq Gt} Gt
 
-def nat_to_chars: {nat}
-  let init = (to_chars "Z")
-  let loop = {chars} (concat (to_chars "S") chars)
-  let stop = {chars} chars
-  (for nat #init #loop #stop)
+def Nat.compare: {n}
+  let call = {go} {a}
+    let case_a_succ = {a_pred} {b}
+      let case_b_succ = {b_pred} (go a_pred b_pred)
+      let case_b_zero = Cmp.gt
+      (b case_b_succ case_b_zero)
+    let case_a_zero = {b}
+      let case_b_succ = {b_pred} Cmp.lt
+      let case_b_zero = Cmp.eq
+      (b case_b_succ case_b_zero)
+    (a case_a_succ case_a_zero)
+  let stop = {a b} Cmp.eq
+  (rec n #call #stop)
 
-def nat_to_string: {nat}
-  dup chars = (nat_to_chars nat)
-  # (from_chars chars) 
-
-def nat_unfold: {n}
-  let init = Zero
-  let loop = Succ
-  let stop = {x}x
-  (for n #init #loop #stop)
+def nat:
+  dup cmp = (Nat.compare ~6)
+  let a = (Nat.succ (Nat.succ Nat.zero))
+  let b = (Nat.succ (Nat.succ (Nat.succ Nat.zero)))
+  # (cmp a b)

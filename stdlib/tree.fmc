@@ -1,4 +1,6 @@
-def NodeF: {lft rgt}
+// TODO: update this file
+
+def Tree.node: {lft rgt}
   {Node Leaf}
   dup Node = Node
   dup Leaf = Leaf
@@ -6,7 +8,7 @@ def NodeF: {lft rgt}
   dup rgt  = (rgt #Node #Leaf)
   # (Node lft rgt)
 
-def LeafF: {val}
+def Tree.leaf: {val}
   {Node Leaf}
   dup Node = Node
   dup Leaf = Leaf
