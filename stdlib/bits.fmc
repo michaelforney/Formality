@@ -1,16 +1,74 @@
-def o: {bs o i e} (o bs)
-def i: {bs o i e} (i bs)
-def e:    {o i e} e
+// Bits.ex
+// | This example achieves the fusion effect in a recursive function. In order
+// | for the optimization to work (allowing us to apply `Bits.inc` N times in
+// | O(log(N)) time, an exponential speedup), we need to call `Bits.id`
+// | afterwards, otherwise we get back to O(N).
+def Bits.ex:
+  let len = ~32
+  dup val = (rec len #Bits.o #Bits.e)
+  dup inc = (Bits.inc len)
+  dup bid = (Bits.id len)
+  dup fun = (~1000000 #inc)
+  # (bid (fun val))
 
-def inc_cont: {bs cont}
-  {o i e}
-  let case_o = i
-  let case_i = {x} (o (cont x))
-  let case_e = e
-  (bs case_o case_i case_e) 
+// Bits
+// | Bitstrings
+// : $self
+//   {P : Bits -> Type} ->
+//   {o : {bs : Bits} -> (P (Bits.o bs))} ->
+//   {i : {bs : Bits} -> (P (Bits.i bs))} ->
+//   {e : (P Bits.e)}
+//   (P self)
+def Bits.o: {bs} {o i e} (o bs)
+def Bits.i: {bs} {o i e} (i bs)
+def Bits.e:      {o i e} e
 
-def inc: {n}
-  let case_s = # {cont bs} (inc_cont bs cont)
-  let case_z = {bs} bs
-  dup S = (n case_s)
-  # (S case_z)
+// Bits.inc
+// | Increments a bit-string by 1
+// : {n : Nat} ->
+//   ! {bs : Bits} ->
+//     Bits
+def Bits.inc: {n}
+  let call = {go bs} {o i e}
+    let case_o = i
+    let case_i = {x} (o (go x))
+    let case_e = e
+    (bs case_o case_i case_e)
+  let stop = {bs} bs
+  (rec n #call #stop)
+
+// Bits.id
+// | Returns the same bit-string
+// : {n : Nat} ->
+//   ! {bs : Bits} ->
+//     Bits
+def Bits.id: {n}
+  let call = {go bs}
+    let case_o = {x go} (Bits.o (go x))
+    let case_i = {x go} (Bits.i (go x))
+    let case_e = {go} Bits.e
+    (bs case_o case_i case_e go)
+  let stop = {bs} bs
+  (rec n #call #stop)
+
+def Bits.to_chars: {n}
+  let call = {go bs}
+    let case_o = {x go} (List.concat (to_chars "o") (go x))
+    let case_i = {x go} (List.concat (to_chars "i") (go x))
+    let case_e = {go} List.nil
+    (bs case_o case_i case_e go)
+  let stop = {bs} List.nil
+  (rec n #call #stop)
+
+def Bits.to_string: {n}
+  dup to_chars = (Bits.to_chars n)
+  # {bits} (from_chars (to_chars bits))
+
+def Bits.to_cat: {n}
+  let call = {go bits} (bits
+    {bs} {go} (Cat.mul ~2 (go bs))
+    {bs} {go} (Cat.succ (Cat.mul ~2 (go bs)))
+    {go} ~0
+    go)
+  let stop = {bits} ~0
+  (rec n #call #stop)
