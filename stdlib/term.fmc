@@ -1,255 +1,146 @@
 // Term
-def Lam: {body}      {Lam App Var Put Dup Clo} (Lam body)
-def App: {func argm} {Lam App Var Put Dup Clo} (App func argm)
-def Var: {indx}      {Lam App Var Put Dup Clo} (Var indx)
-def Put: {expr}      {Lam App Var Put Dup Clo} (Put expr)
-def Dup: {expr body} {Lam App Var Put Dup Clo} (Dup expr body)
-def Clo: {indx}      {Lam App Var Put Dup Clo} (Clo indx)
+def Var: {indx}      {Var Lam App Put Dup} (Var indx)
+def Lam: {body}      {Var Lam App Put Dup} (Lam body)
+def App: {func argm} {Var Lam App Put Dup} (App func argm)
+def Put: {expr}      {Var Lam App Put Dup} (Put expr)
+def Dup: {expr body} {Var Lam App Put Dup} (Dup expr body)
 
 def Term.rec:
   (rec ~6)
 
+def Term.index.copy: (Nat.copy ~256)
+
 def Term.ex:
 
   // Library functions
-  //dup reduce    = (Term.reduce max_len)
-  //dup normal    = (Term.normal max_len #reduce)
-  //dup quote     = (Term.quote max_len)
-  dup id        = Term.quoted.id
+  dup to_string   = Term.to_string
+  dup shift       = Term.shift
 
   //Example terms
   let ID    = (Lam (Var 0))
   let TRUE  = (Lam (Lam (Var 0)))
   let FALSE = (Lam (Lam (Var 1)))
-  //let NOT2  = (Lam {b} (App (App b FALSE) TRUE))
-  //let NOT   = (Lam {b} (Lam {t} (Lam {f} (App (App b f) t))))
-  //let TWO   = (Lam {s} (Dup s {s} dup s = s # (Lam {z} (App s (App s z)))))
-  //let NOTS  = (~200 #(App NOT2)) // 310245, and 845032 for NOT2
-  //let TEST  = (Dup (Put #ID) {x} dup x = x (Put #(Lam {t} (App t x) x)))
-  let TEST  = (Put #(Put #(Lam (Var 0))))
-  # (id TEST)
+  # (to_string (shift 0 (Lam (Lam (App (Var 0) (Var 2))))))
 
 def term: Term.ex
 
-def Term.quoted.id:
-  let func = {self}
-    dup self = self
-    let call = {go term}
-      dup self = self
-      let case_lam = {body} {go}
-        get [go, body] = (go body)
-        [go, (Lam body)]
-      let case_app = {func argm} {go}
-        get [go, func] = (go func)
-        get [go, argm] = (go argm)
-        [go, (App func argm)]
-      let case_var = {indx} {go}
-        [go, (Var 7)]
-      let case_put = {expr} {go}
-        dup expr = expr
-        [go, (Put #(self expr))]
-      let case_dup = {expr body} {go}
-        get [go, expr] = (go expr)
-        get [go, body] = (go body)
-        [go, (Dup expr body)]
-      let case_clo = {indx} {go}
-        [go, (Clo indx)]
-      (term case_lam case_app case_var case_put case_dup case_clo go)
-    let stop = {term}
-      [{x}x, term]
-    dup func = (Term.rec #call #stop)
-    # {term}
-      (snd (func term))
-  (func # (func # (func # (func #
-  (func # (func # (func # (func #
-  (func # (func # (func # (func #
-  (func # (func # (func # (func #
-        # {x}x))))))))))))))))
+def Term.to_string:
+  let name = {indx}
+    let char = (Num.box_byte ||indx % 26| + 97|)
+    (List.cons char List.nil)
+  let call = {go depth term}
+    cpy depth = depth
+    let case_var = {indx} {go}
+      let text = List.nil
+      let text = (List.concat text (name indx))
+      [go, text]
+    let case_lam = {body} {go}
+      get [go, body] = (go |depth + 1| body)
+      let text = List.nil
+      let text = (List.concat text (to_chars "{"))
+      let text = (List.concat text (name depth))
+      let text = (List.concat text (to_chars "}"))
+      let text = (List.concat text body)
+      [go, text]
+    let case_app = {func argm} {go}
+      get [go, func] = (go depth func)
+      get [go, argm] = (go depth argm)
+      let text = List.nil
+      let text = (List.concat text (to_chars "("))
+      let text = (List.concat text func)
+      let text = (List.concat text (to_chars " "))
+      let text = (List.concat text argm)
+      let text = (List.concat text (to_chars ")"))
+      [go, text]
+    let case_put = {expr} {go}
+      get [go, expr] = (go depth expr)
+      let text = List.nil
+      let text = (List.concat text (to_chars "#"))
+      let text = (List.concat text expr)
+      [go, text]
+    let case_dup = {expr body} {go}
+      get [go, expr] = (go depth expr)
+      get [go, body] = (go |depth + 1| body)
+      let text = List.nil
+      let text = (List.concat text (to_chars "dup {c"))
+      let text = (List.concat text (name depth))
+      let text = (List.concat text (to_chars "} = "))
+      let text = (List.concat text expr)
+      let text = (List.concat text (to_chars "; "))
+      let text = (List.concat text body)
+      [go, text]
+    (term case_var case_lam case_app case_put case_dup go)
+  let stop = {term}
+    [{x}x, term]
+  dup func = (Term.rec #call #stop)
+  # {term}
+    (from_chars (snd (func 0 term)))
 
+def Term.shift:
+  let call = {go depth term}
+    cpy depth = depth
+    let case_var = {indx} {go}
+      cpy indx = indx
+      let indx = if |indx < depth|
+        then: indx
+        else: |indx + 1|
+      [go, (Var indx)]
+    let case_lam = {body} {go}
+      get [go, body] = (go |depth + 1| body)
+      [go, (Lam body)]
+    let case_app = {func argm} {go}
+      get [go, func] = (go depth func)
+      get [go, argm] = (go depth argm)
+      [go, (App func argm)]
+    let case_put = {expr} {go}
+      get [go, expr] = (go depth expr)
+      [go, (Put expr)]
+    let case_dup = {expr body} {go}
+      get [go, expr] = (go depth expr)
+      get [go, body] = (go |depth + 1| body)
+      [go, (Dup expr body)]
+    (term case_var case_lam case_app case_put case_dup go)
+  let stop = {term}
+    [{x}x, term]
+  dup func = (Term.rec #call #stop)
+  # {depth term}
+    (snd (func depth term))
 
-//def Term.id:
-  //let call = {go term}
-    //let case_lam = {body} {go}
-      //get [go, body] = (go body)
-      //[go, (Lam body)]
-    //let case_app = {func argm} {go}
-      //get [go, func] = (go func)
-      //get [go, argm] = (go argm)
-      //[go, (App func argm)]
-    //let case_var = {indx} {go}
-      //[go, (Var indx)]
-    //let case_put = {expr} {go}
-      //dup expr = expr
-      //[go, (Put #expr)]
-    //let case_dup = {expr body} {go}
-      //get [go, expr] = (go expr)
-      //get [go, body] = (go body)
-      //[go, (Dup expr body)]
-    //let case_clo = {indx} {go}
-      //[go, (Clo indx)]
-    //(term case_lam case_app case_var case_put case_dup case_clo go)
-  //let stop = {term}
-    //[{x}x, term]
-  //dup func = (Term.rec #call #stop)
-  //# {term}
-    //(snd (func term))
-
-//def Term.to_string: {mlen}
-  //let name = {indx}
-    //let char = (Num.box_byte ||indx % 26| + 97|)
-    //(List.cons char List.nil)
-  //let call = {go lams dups term}
-    //cpy lams = lams
-    //cpy dups = dups
-    //let case_lam = {body} {go}
-      //get [go, body] = (go |lams + 1| dups body)
-      //let text = List.nil
-      //let text = (List.concat text (to_chars "{"))
-      //let text = (List.concat text (name lams))
-      //let text = (List.concat text (to_chars "}"))
-      //let text = (List.concat text body)
-      //[go, text]
-    //let case_app = {func argm} {go}
-      //get [go, func] = (go lams dups func)
-      //get [go, argm] = (go lams dups argm)
-      //let text = List.nil
-      //let text = (List.concat text (to_chars "("))
-      //let text = (List.concat text func)
-      //let text = (List.concat text (to_chars " "))
-      //let text = (List.concat text argm)
-      //let text = (List.concat text (to_chars ")"))
-      //[go, text]
-    //let case_var = {indx} {go}
-      //let text = List.nil
-      //let text = (List.concat text (name indx))
-      //[go, text]
-    //let case_put = {expr} {go}
-      //get [go, expr] = (go 0 dups expr)
-      //let text = List.nil
-      //let text = (List.concat text (to_chars "#"))
-      //let text = (List.concat text expr)
-      //[go, text]
-    //let case_dup = {expr body} {go}
-      //get [go, expr] = (go lams dups expr)
-      //get [go, body] = (go lams |dups + 1| body)
-      //let text = List.nil
-      //let text = (List.concat text (to_chars "dup {c"))
-      //let text = (List.concat text (name dups))
-      //let text = (List.concat text (to_chars "} = "))
-      //let text = (List.concat text expr)
-      //let text = (List.concat text (to_chars "; "))
-      //let text = (List.concat text body)
-      //[go, text]
-    //let case_clo = {indx} {go}
-      //let text = List.nil
-      //let text = (List.concat text (to_chars "c"))
-      //let text = (List.concat text (name indx))
-      //[go, text]
-    //(term case_lam case_app case_var case_put case_dup case_clo go)
-  //let stop = {term}
-    //[{x}x, term]
-  //dup func = (rec mlen #call #stop)
-  //# {term}
-    //(from_chars (snd (func 0 0 term)))
-
-
-//-- A table renaming every `Fin n` by a `Fin m`
-//Niks : (n m : ℕ) → Set
-//Niks n m = Fin n → Fin m
-
-//-- Increases all renamings in a table, not renaming zero
-//inc : ∀ {n m} → (niks : Niks n m) → Niks (suc n) (suc m)
-//inc niks zero    = zero
-//inc niks (suc i) = suc (niks i)
-
-//-- Renames every free var in a `Term n`
-//rename : ∀ {n m} → (niks : Niks n m) (t : Term n) → Term m
-//rename niks (var idx)     = var (niks idx)
-//rename niks typ           = typ
-//rename niks (all bin bod) = all (rename (inc niks) bin) (rename (inc niks) bod)
-//rename niks (lam bin bod) = lam (rename (inc niks) bin) (rename (inc niks) bod)
-//rename niks (app fun arg) = app (rename niks fun) (rename niks arg)
-
-//def Term.niks.push: {k niks n}
-  //cpy n = n
-  //(if |n == 0|
-    //then: {niks} [niks, k]
-    //else: {niks}
-      //get [niks, n] = (niks |n - 1|)
-      //[niks, |n + 1|]
-    //niks)
-
-//def Term.nicks.pop: {niks n}
-  //get [niks, n] = (niks |n + 1|)
-  //[niks, |n - 1|]
-
-//def term:
-  //let push = Term.niks.push
-  //let pop  = Term.niks.pop
-  //let niks = {x} x
-  //let niks = (push 3 niks)
-  //let niks = (push 3 niks)
-  //let niks = (push 3 niks)
-  //let k = 1
-  ////get [niks, n] = (niks 0)
-  ////get [niks, m] = (niks k)
-  //niks
-
-//def Term.rename:
-  //let ninc = {niks n} cpy n = n (if |n == 0| [0, |(niks |n - 1|) + 1|])
-  //let ndec = {niks n} |(niks |n + 1|) - 1|
-  //let ncpy = {niks} [{n} 
-  //let call = {go niks term}
-    //let case_lam = {body} {go niks}
-      //get [go  , temp] = (go (ninc niks) body)
-      //get [niks, body] = temp
-      //[go, [niks, (Lam body)]]
-    //let case_app = {func argm} {go niks}
-      //get [go  , temp] = (go niks func)
-      //get [niks, func] = temp
-      //get [go  , temp] = (go niks argm)
-      //get [niks, argm] = argm
-      //[go, [niks, (App func argm)]]
-    //let case_var = {indx} {go niks}
-      //[go, [niks, (Var (niks idx))]]
-    
-  
-  
-  
-
-//def Term.reduce: {mlen}
-  //let call = {go term}
-    //let case_lam = {body} {go}
-      //[go, (Lam body)]
-    //let case_app = {func argm} {go}
-      //let case_lam   = {f_body}        {argm go} (go (f_body argm)) // ([x]a b) ~> [b/x]a
-      //let case_app   = {f_func f_argm} {argm go} get [go, argm] = (go argm) [go, (App (App f_func f_argm) argm)]
-      //let case_var   = {f_indx}        {argm go} get [go, argm] = (go argm) [go, (App (Var f_indx) argm)]
-      //let case_dup   = {f_expr f_body} {argm go} (go (Dup f_expr (App f_body argm))) // ((dup x = a; b) c) ~> dup x = a; (b c)
-      //let case_put   = {f_expr}        {argm go} get [go, argm] = (go argm) [go, (App (Put f_expr) argm)]
-      //let case_clo   = {f_indx}        {argm go} get [go, argm] = (go argm) [go, (App (Clo f_indx) argm)]
-      //get [go, func] = (go func)
-      //(func case_lam case_app case_var case_dup case_put case_clo argm go)
-    //let case_var = {indx} {go}
-      //[go, (Var indx)]
-    //let case_dup = {expr body} {go}
-      //let case_lam   = {f_body}        {body go} [go, (Dup (Lam f_body) body)]
-      //let case_app   = {f_func f_argm} {body go} [go, (Dup (App f_func f_argm) body)]
-      //let case_var   = {f_indx}        {body go} [go, (Dup (Var f_indx) body)]
-      //let case_dup   = {f_expr f_body} {body go} (go (Dup f_expr (Dup f_body body))) // [x = [y = a] b] c ~> [y = a] [x = b] c
-      //let case_put   = {f_expr}        {body go} (go (body f_expr)) // (dup x = #a; b) ~> b[x <- a]
-      //let case_clo   = {f_indx}        {body go} [go, (Dup (Clo f_indx) body)]
-      //get [go, expr] = (go expr)
-      //(expr case_lam case_app case_var case_dup case_put case_clo body go)
-    //let case_put = {expr} {go}
-      //[go, (Put expr)]
-    //let case_clo = {expr} {go}
-      //[go, (Clo expr)]
-    //(term case_lam case_app case_var case_dup case_put case_clo go)
-  //let stop = {term}
-    //[{x}x, (Var 0)]
-  //dup func = (rec mlen #call #stop)
-  //# {term}
-    //(snd (func term))
-
-//def term: Term.ex
+//def Term.reduce:
+  //let func = {self}
+    //let call = {go term}
+      //let case_lam = {body} {go}
+        //[go, (Lam body)]
+      //let case_app = {func argm} {go}
+        //let case_lam   = {f_body}        {argm go} (go (f_body argm)) // ([x]a b) ~> [b/x]a
+        //let case_app   = {f_func f_argm} {argm go} get [go, argm] = (go argm) [go, (App (App f_func f_argm) argm)]
+        //let case_var   = {f_indx}        {argm go} get [go, argm] = (go argm) [go, (App (Var f_indx) argm)]
+        //let case_dup   = {f_expr f_body} {argm go} (go (Dup f_expr (App f_body argm))) // ((dup x = a; b) c) ~> dup x = a; (b c)
+        //let case_put   = {f_expr}        {argm go} get [go, argm] = (go argm) [go, (App (Put f_expr) argm)]
+        //let case_clo   = {f_indx}        {argm go} get [go, argm] = (go argm) [go, (App (Clo f_indx) argm)]
+        //get [go, func] = (go func)
+        //(func case_lam case_app case_var case_dup case_put case_clo argm go)
+      //let case_var = {indx} {go}
+        //[go, (Var indx)]
+      //let case_dup = {expr body} {go}
+        //let case_lam   = {f_body}        {body go} [go, (Dup (Lam f_body) body)]
+        //let case_app   = {f_func f_argm} {body go} [go, (Dup (App f_func f_argm) body)]
+        //let case_var   = {f_indx}        {body go} [go, (Dup (Var f_indx) body)]
+        //let case_dup   = {f_expr f_body} {body go} (go (Dup f_expr (Dup f_body body))) // [x = [y = a] b] c ~> [y = a] [x = b] c
+        //let case_put   = {f_expr}        {body go} (go (body f_expr)) // (dup x = #a; b) ~> b[x <- a]
+        //let case_clo   = {f_indx}        {body go} [go, (Dup (Clo f_indx) body)]
+        //get [go, expr] = (go expr)
+        //(expr case_lam case_app case_var case_dup case_put case_clo body go)
+      //let case_put = {expr} {go}
+        //dup expr = xpr
+        //[go, (Put #(self expr))]
+      //let case_clo = {expr} {go}
+        //[go, (Clo expr)]
+      //(term case_lam case_app case_var case_dup case_put case_clo go)
+    //let stop = {term}
+      //[{x}x, (Var 0)]
+    //dup func = (Term.rec #call #stop)
+    //# {term}
+      //(snd (func term))
+  //(func # (func # (func # (func # (func # (func # (func # (func #
+  //(func # (func # (func # (func # (func # (func # (func # (func # # {x}x))))))))))))))))
