@@ -1,10 +1,14 @@
 // Terms so common that they "deserve" a global, non-namespaced name
 
-// Bounded function.
+// Bounded recursive function.
 def rec: {nat call stop}
   dup callN = (nat call)
   dup stop  = stop
   # (callN stop)
+
+// Bounded recursive function with a default maximum call count (65536).
+def REC:
+  (rec ~65536)
 
 // Bounded for-loop
 def for: {nat init loop stop}
