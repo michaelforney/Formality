@@ -1,6 +1,6 @@
 # Elementary Affine Type Theory
 
-Elementary Affine Type Theory (EA-TT) is the pure proof language behind [Formality](https://github.com/moonad/formality). This document is a draft of EA-TT's specification. Its goal is to provide all the information required to independently implement complying evaluators, compilers and type-checkers for it.
+Elementary Affine Type Theory (EA-TT) is the pure proof language behind [Formality](https://gitlab.com/moonad/formality). This document is a draft of EA-TT's specification. Its goal is to provide all the information required to independently implement complying evaluators, compilers and type-checkers for it.
 
 ## Syntax
 
@@ -50,7 +50,7 @@ Plus the stratification condition, which dictates that:
 
 ## Erasure to EA-CORE
 
-Computationally, EA-TT terms are erased to the [Elementary Affine Core](../EA-Core). The erasure `E(t)` of a EA-TT term to EA-CORE is defined as:
+Computationally, EA-TT terms are erased to the [Elementary Affine Core (EA-Core)](EA-Core). The erasure `E(t)` of a EA-TT term to EA-CORE is defined as:
 
 ```javascript
 E(Type)         = {x} => x

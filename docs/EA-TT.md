@@ -1,12 +1,12 @@
 # Elementary Affine Type Theory (EA-TT)
 
-A simple, efficient proof language, and the underlying type-theory behind [Formality](https://github.com/moonad/formality).
+A simple, efficient proof language, and the underlying type-theory behind [Formality](https://gitlab.com/moonad/formality).
 
 ## How it works?
 
 EA-TT "downgrades" the Calculus of Constructions with affine lambdas, and then extends it with elementary duplications, [Self-Types](http://homepage.divms.uiowa.edu/~astump/papers/fu-stump-rta-tlca-14.pdf), type-level recursion and type-in-type. Thanks to its underlying logic, EA-TT is terminating regardless of types, allowing it to have powerful type-level features. This gives us a minimal, consistent proof language capable of inductive reasoning through λ-encodings, in contrast to other theories such as CoIC, which include a complex native datatype system.
 
-Check the [spec](spec.md), [examples](main.eatt), and [this post](https://medium.com/@maiavictor/introduction-to-formality-part-1-7ae5b02422ec), where we port some Agda proofs to EA-TT!
+Check the [spec](/spec/EA-TT.md), [examples](https://gitlab.com/moonad/Formality-JavaScript/blob/master/EA-TT/main.eatt), and [this post](https://medium.com/@maiavictor/introduction-to-formality-part-1-7ae5b02422ec), where we port some Agda proofs to EA-TT!
 
 ## Usage
 
@@ -17,8 +17,8 @@ Elementary Affine Type Theory is currently implemented as a small, dependency-fr
 npm i -g elementary-affine-type-theory
 
 # Enters the repository
-git clone https://github.com/moonad/elementary-affine-type-theory
-cd elementary-affine-type-theory
+git clone https://gitlab.com/moonad/Formality-JavaScript
+cd EA-TT
 
 # Checks and evaluates main
 eatt main
@@ -36,27 +36,20 @@ This implements inductive natural numbers as well as the induction principle.
 : Type
 = $self
   {-P : {:Nat} Type}
-  {s  : ! {-n : Nat} {h : (P n)} (P (succ n))}
-  {z  : ! (P zero)}
-  ! (P self)
+  {s : ! {-n : Nat} {h : (P n)} (P (succ n))}
+  ! {z : (P zero)}
+    (P self)
 
 // Successor of an inductive Nat
 . succ
 : {n : Nat} Nat
 = [n]
-  @Nat [-P] [s] [z]
-  [succ = s]
-  [zero = z]
-  [pred = (~n -P |succ |zero)]
-  | (succ -n pred)
+  @Nat [-P] [s] [s = s] [A = (~n -P |s)] | [z] (s -n (A z))
 
 // Zero of an inductive Nat
 . zero
 : Nat
-= @Nat [-P] [s] [z]
-  [succ = s]
-  [zero = z]
-  | zero
+= @Nat [-P] [s] [s = s] | [z] z
 
 // Its induction hypopthesis is a simple use (`~`) of the self axiom
 . induction

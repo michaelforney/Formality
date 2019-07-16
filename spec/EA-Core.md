@@ -75,7 +75,7 @@ EAC has the following reduction rules:
 
 ## Examples
 
-Examples can be seen on the [main.eac](main.eac) file.
+Examples can be seen on the [main.eac](https://gitlab.com/moonad/Formality-JavaScript/blob/master/EA-Core/main.eac) file.
 
 ## Termination
 
@@ -155,7 +155,7 @@ We can normalize any EAC term as follows: first, continously reduce redexes at l
 
 [Symmetric Interaction Combinators](https://pdfs.semanticscholar.org/1731/a6e49c6c2afda3e72256ba0afb34957377d3.pdf) are an universal interaction net system. They are a massively parallel, strongly confluent, graph-based model of computation, and the foundation for my optimal reducer implementations.
 
-[N-Ary Symmetric Interaction Combinators](https://github.com/MaiaVictor/Nasic-legacy) (NASIC) are an adaptation of Symmetric Interaction Combinators with 32-bit instead of boolean labels, allowing practical EAC evaluation. It is like our assembly language / virtual machine.
+[N-Ary Symmetric Interaction Combinators](https://github.com/MaiaVictor/Nasic-legacy/blob/master/javascript/nasic.js) (NASIC) is an adaptation of Symmetric Interaction Combinators with 32-bit instead of boolean labels, allowing practical EAC evaluation. It is like our assembly language / virtual machine.
 
 The [Symmetric Interaction Calculus](https://github.com/maiavictor/symmetric-interaction-calculus) is a textual syntax for Symmetric Interaction Combinators. As such, it is Turing-complete, and isn't an usual programming language due to global scopes.
 

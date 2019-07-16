@@ -12,9 +12,9 @@ An optimal compilation target for functional programming languages. It is:
 
 5. **Terminating:** computations are guaranteed to halt.
 
-6. **Portable:** soon-to-be implemented in [FM-NET](../FM-Net), a portable, 400-LOC runtime.
+6. **Portable:** soon-to-be implemented in [FM-NET](FM-Net), a portable, 400-LOC runtime.
 
-This repository includes a reference implementation in [JavaScript](https://github.com/moonad/Formality-JavaScript/tree/master/FM-Core). We're working in specifications/formalizations, and low-level (LLVM/CUDA) backends.
+This repository includes a reference implementation in [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/tree/master/FM-Core). We're working in specifications/formalizations, and low-level (LLVM/CUDA) backends.
 
 ## Example
 
@@ -60,7 +60,7 @@ n | fib(n) % 2^32 | graph rewrites
 
 As you can see, `fib(n)` is linear, and needs exactly 6 graph rewrites per iteration of the loop. This JS implementation performs roughly `3m` rewrites/s. We expect this to increase a few orders of magnitude with compilers and hardware.
 
-For more examples, check our [wiki](https://github.com/moonad/Formality/wiki).
+For more examples, check our [documentation](https://docsmoonad.readthedocs.io).
 
 ## Usage
 
@@ -73,21 +73,21 @@ npm i -g formality-core
 2. Type `fmc` to see a list of options and test in our example:
 
 ```
-git clone https://github.com/moonad/formality.git
+git clone https://gitlab.com/moonad/formality
 cd stdlib
 fmc -s main
 ```
 
-For a reference of the language features, check our [wiki](https://github.com/moonad/Formality/wiki).
+For a reference of the language features, check our [documentation](https://docsmoonad.readthedocs.io).
 
 ## Implementations
-- [JavaScript](https://github.com/moonad/Formality-JavaScript/tree/master/FM-Core)
+- [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/tree/master/FM-Core)
 
 
 ## Theory
 
-Formality-Core is based on the [Elementary Affine Core](../EA-Core), extended with numeric primitives and pairs. It is compiled to a lightweight interaction net system based on [Symmetric Interaction Combinators](https://pdfs.semanticscholar.org/1731/a6e49c6c2afda3e72256ba0afb34957377d3.pdf) for evaluation, as shown below:
+Formality-Core is based on the [Elementary Affine Core](EA-Core), extended with numeric primitives and pairs. It is compiled to a lightweight interaction net system based on [Symmetric Interaction Combinators](https://pdfs.semanticscholar.org/1731/a6e49c6c2afda3e72256ba0afb34957377d3.pdf) for evaluation, as shown below:
 
-<img src="https://github.com/moonad/Formality/blob/master/docs/images/inet-simulation.gif" width="600" height="451" />
+<img src="https://gitlab.com/moonad/formality/raw/master/docs/images/inet-simulation.gif" width="600" height="451" />
 
 To learn more about optimal evaluators and how they relate to traditional functional languages, check [this Reddit post](https://www.reddit.com/r/haskell/comments/bp55ua/new_tool_for_exploring_optimal_reductions/enr3d42/).
