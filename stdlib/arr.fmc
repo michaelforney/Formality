@@ -7,7 +7,7 @@ def Arr.ex:
   let dpt    = ~16
   let pbt    = PBT.16
   let add    = Num.boxed_add
-  dup arr    = (Arr.init pbt #0)   // ~133k graph-rewrites to alloc 65536 zeros
+  dup arr    = (Arr.init pbt ##0)   // ~133k graph-rewrites to alloc 65536 zeros
   dup write  = (Arr.write dpt)  // ~650 graph-rewrites per write with dpt=16
   dup update = (Arr.update dpt) // ~650 graph-rewrites per update with dpt=16
   dup read   = (Arr.read dpt)   // ~650 graph-rewrites per read with dpt=16

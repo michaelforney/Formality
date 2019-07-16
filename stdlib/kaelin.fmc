@@ -630,7 +630,7 @@ def kaelin:
   // :: Board ::
   // :::::::::::
 
-dup new_board = #
+  dup new_board = #
     //let O   = Void
     //let W   = (Item WALL)
     //let a   = (Hero WHITE GONK)
@@ -670,13 +670,13 @@ dup new_board = #
     let x   = (Goal WHITE)
     let e   = (Hero BLACK TOPHORO)
     let f   = (Hero BLACK CRONI)
-    let g   = (Hero BLACK SNARCH)
+    let g   = (Hero BLACK GONK)
     let h   = (Hero BLACK MEWEM)
     let y   = (Goal BLACK)
-    let r00 = [[[[W,W],[W,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[h,W],[W,W]]]]
-    let r01 = [[[[W,W],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,g],[y,W]]]]
-    let r02 = [[[[W,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[f,W]]]]
-    let r03 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,e]]]]
+    let r00 = [[[[W,W],[W,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,W],[W,W]]]]
+    let r01 = [[[[W,W],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,f],[y,W]]]]
+    let r02 = [[[[W,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[g,W]]]]
+    let r03 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
     let r04 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
     let r05 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
     let r06 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
@@ -685,10 +685,10 @@ dup new_board = #
     let r09 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
     let r10 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
     let r11 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
-    let r12 = [[[[a,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
-    let r13 = [[[[W,b],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,W]]]]
-    let r14 = [[[[W,x],[c,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[W,W]]]]
-    let r15 = [[[[W,W],[W,d]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,W],[W,W]]]]
+    let r12 = [[[[O,O],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,O]]]]
+    let r13 = [[[[W,c],[O,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[O,W]]]]
+    let r14 = [[[[W,x],[d,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,O],[W,W]]]]
+    let r15 = [[[[W,W],[W,O]],[[O,O],[O,O]]],[[[O,O],[O,O]],[[O,W],[W,W]]]]
     [[[[r00,r01],[r02,r03]],[[r04,r05],[r06,r07]]],[[[r08,r09],[r10,r11]],[[r12,r13],[r14,r15]]]]
 
   // Converts a 16x16 position to an index up to 256.
@@ -757,16 +757,16 @@ dup new_board = #
     # {board}
       get [info_text, board_text] = (fold board)
       (from_chars
-        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat (List.cons #NEWLINE List.nil)
         (List.concat (to_chars " 0 1 2 3 4 5 6 7 8 9 a b c d e f")
         (List.concat (break_lines board_text)
-        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat (List.cons #NEWLINE List.nil)
         (List.concat (to_chars "HR | HP | DF |")
-        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat (List.cons #NEWLINE List.nil)
         (List.concat (to_chars "-- | -- | -- |")
-        (List.concat (List.cons NEWLINE List.nil)
+        (List.concat (List.cons #NEWLINE List.nil)
         (List.concat info_text
-          (List.cons NEWLINE List.nil)))))))))))
+          (List.cons #NEWLINE List.nil)))))))))))
 
   // get_hero_position
   // | Returns the position of a hero on the board, if any
@@ -1202,7 +1202,7 @@ dup new_board = #
       let rang = #0
       let area = V2.range_1
       let hits = {cpos hpos} (board_interact cpos hpos (dmge_enemy 3))
-      let cast = (cast_area rang area hits)
+      dup cast = (cast_area rang area #hits)
       # {cpos nil board}
           get [cx, cy]      = cpos
           cpy cx            = cx
@@ -1494,7 +1494,6 @@ dup new_board = #
   // :: Casts ::
   // :::::::::::
 
-  // empty_cast
   dup empty_cast = # Stack.new
 
   let sort_casts = {casts} {Cons}
@@ -1580,10 +1579,9 @@ dup new_board = #
     let board = (cast [EARTH_WALL,[0xf,0x4]] board)
     let board = (cast [SHADOW_BOND,[0xe,0x2]] board)
     let board = (board_update [0x0,0xc] (lock 1) board)
-    //let board = (end_turn board)
     (print_board board)
 
-  dup exports =
+  let exports =
     [#new_board,
     [#cast,
     [#print_board,
@@ -1610,4 +1608,4 @@ dup new_board = #
     [#HERO_F,
      0]]]]]]]]]]]]]]]]]]]]]]]]
 
-  # exports
+  # test_end_turn

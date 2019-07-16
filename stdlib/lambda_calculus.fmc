@@ -2,10 +2,9 @@ def LC.ex:
 
   // Library functions
   dup to_string = LC.to_string
-  dup shift     = LC.shift
   dup subst     = LC.subst
-  dup copy      = LC.copy
   dup reduce    = LC.reduce
+  dup shifted   = LC.shifted
   let Var       = LC.Var
   let Lam       = LC.Lam
   let App       = LC.App
@@ -14,7 +13,10 @@ def LC.ex:
   let N2   = (Lam (Lam (App (Var 1) (App (Var 1) (Var 0))))) // λs.λz.(s (s z))
   let MUL  = (Lam (Lam (Lam (App (Var 2) (App (Var 1) (Var 0)))))) // λa.λb.λs.(a (b s))
   let MUL2 = (App MUL N2)
-  let MAIN = (App MUL2 (App MUL2 (App MUL2 N2)))
+  let N256 = (App MUL2 (App MUL2 (App MUL2 (App MUL2 (App MUL2 (App MUL2 (App MUL2 N2)))))))
+  let NOT  = (Lam (Lam (Lam (App (App (Var 2) (Var 0)) (Var 1)))))
+  let TRUE = (Lam (Lam (Var 1)))
+  let MAIN = (App (App N256 NOT) TRUE)
   # (to_string (reduce MAIN))
 
 // Lambda Calculus in Formality-Core
@@ -55,74 +57,81 @@ def LC.to_string:
   dup func = (REC #call #stop)
   # {term} (from_chars (snd (func 0 term)))
 
-def LC.copy:
-  let call = {go term}
+def LC.shifted:
+  let call = {go inc depth term}
+    cpy depth = depth
+    cpy inc   = inc
     let case_var = {indx} {go}
       cpy indx = indx
-      [go, [(LC.Var indx), (LC.Var indx)]]
+      [go, [(LC.Var indx), (LC.Var (if |indx < depth| [indx, |indx + inc|]))]]
     let case_lam = {body} {go}
-      get [go, bodys]   = (go body)
+      get [go, bodys]    = (go inc |depth + 1| body)
       get [body0, body1] = bodys
       [go, [(LC.Lam body0), (LC.Lam body1)]]
     let case_app = {func argm} {go}
-      get [go, funcs]    = (go func)
-      get [go, argms]    = (go argm)
+      get [go, funcs]    = (go inc depth func)
+      get [go, argms]    = (go inc depth argm)
       get [func0, func1] = funcs
       get [argm0, argm1] = argms
       [go, [(LC.App func0 argm0), (LC.App func1 argm1)]]
     (term case_var case_lam case_app go)
   let stop = {term} [{x}x, term]
   dup func = (REC #call #stop)
-  # {term} (snd (func term))
-
-def LC.shift:
-  let call = {go inc depth term}
-    cpy depth = depth
-    cpy inc   = inc
-    let case_var = {indx} {go}
-      cpy indx = indx
-      let indx = if |indx < depth| [indx, |indx + inc|]
-      [go, (LC.Var indx)]
-    let case_lam = {body} {go}
-      get [go, body] = (go inc |depth + 1| body)
-      [go, (LC.Lam body)]
-    let case_app = {func argm} {go}
-      get [go, func] = (go inc depth func)
-      get [go, argm] = (go inc depth argm)
-      [go, (LC.App func argm)]
-    (term case_var case_lam case_app go)
-  let stop = {term} [{x}x, term]
-  dup func = (REC #call #stop)
   # {inc depth term} (snd (func inc depth term))
 
 def LC.subst:
-  dup shift = LC.shift
-  dup copy  = LC.copy
+  dup shifted = LC.shifted
   let call = {go inc depth val term}
     cpy depth = depth
     cpy inc   = inc
     let case_var = {indx} {go val}
       cpy indx = indx
-      [go, if |indx == depth|
-        then: (shift inc 0 val)
-        else: (LC.Var |indx - (if |indx > depth| [1,0])|)]
+      [go, (if |indx == depth|
+        then: {val} (shifted inc 0 val)
+        else: {val} [val, (LC.Var |indx - (if |indx > depth| [1,0])|)]
+        val)]
     let case_lam = {body} {go val}
-      get [go, body] = (go |inc + 1| |depth + 1| val body)
-      [go, (LC.Lam body)]
+      get [go, val_body] = (go |inc + 1| |depth + 1| val body)
+      get [val, body]    = val_body
+      [go, [val, (LC.Lam body)]]
     let case_app = {func argm} {go val}
-      get [val0, val1] = (copy val)
-      get [go, func]   = (go inc depth val0 func)
-      get [go, argm]   = (go inc depth val1 argm)
-      [go, (LC.App func argm)]
+      get [go, val_func] = (go inc depth val func)
+      get [val, func]    = val_func
+      get [go, val_argm] = (go inc depth val argm)
+      get [val, argm]    = val_argm
+      [go, [val, (LC.App func argm)]]
     (term case_var case_lam case_app go val)
   let stop = {term}
     [{x}x, term]
   dup func = (REC #call #stop)
   # {depth val term}
-    (snd (func 0 depth val term))
+    (snd (snd (func 0 depth val term)))
+
+def LC.whnf:
+  dup subst = LC.subst
+  let apply = {go func argm}
+    get [go, func] = (go func)
+    let case_var = {indx}      {go x} [go, (LC.App (LC.Var indx) x)]
+    let case_lam = {body}      {go x} (go (subst 0 x body))
+    let case_app = {func argm} {go x} [go, (LC.App (LC.App func argm) x)]
+    (func case_var case_lam case_app go argm)
+  let call = {go term}
+    let case_var = {indx} {go}
+      [go, (LC.Var indx)]
+    let case_lam = {body} {go}
+      [go, (LC.Lam body)]
+    let case_app = {func argm} {go}
+      get [go, func] = (go func)
+      get [go, argm] = (go argm)
+      (apply go func argm)
+    (term case_var case_lam case_app go)
+  let stop = {term} [{x}x, term]
+  dup func = (REC #call #stop)
+  # {term} (snd (func term))
 
 def LC.reduce:
   dup subst = LC.subst
+  dup whnf  = LC.whnf
   let apply = {go func argm}
     get [go, func] = (go func)
     let case_var = {indx}      {go x} [go, (LC.App (LC.Var indx) x)]

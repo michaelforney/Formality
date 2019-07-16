@@ -10,6 +10,10 @@ def rec: {nat call stop}
 def REC:
   (rec ~65536)
 
+// Bounded recursive function with a default maximum call count (65536), allowing 2 parallel recursive calls.
+def REC2:
+  &32
+
 // Bounded for-loop
 def for: {nat init loop stop}
   dup init = init
