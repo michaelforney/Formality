@@ -60,7 +60,7 @@ n | fib(n) % 2^32 | graph rewrites
 
 As you can see, `fib(n)` is linear, and needs exactly 6 graph rewrites per iteration of the loop. This JS implementation performs roughly `3m` rewrites/s. We expect this to increase a few orders of magnitude with compilers and hardware.
 
-For more examples, check our [documentation](https://docsmoonad.readthedocs.io).
+For more examples, check our [documentation](https://docs.formality-lang.org/en/latest/).
 
 ## Usage
 
@@ -78,7 +78,7 @@ cd stdlib
 fmc -s main
 ```
 
-For a reference of the language features, check our [documentation](https://docsmoonad.readthedocs.io).
+For a reference of the language features, check our [documentation](https://docs.formality-lang.org/en/latest/).
 
 ## Implementations
 - [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/tree/master/FM-Core)

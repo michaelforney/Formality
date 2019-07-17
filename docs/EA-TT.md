@@ -44,14 +44,19 @@ This implements inductive natural numbers as well as the induction principle.
 . succ
 : {n : Nat} Nat
 = [n]
-  @Nat [-P] [s] [s = s] [A = (~n -P |s)] | [z] (s -n (A z))
+  @Nat [-P] [s]
+  dup s = s
+  dup A = (~n -P #s)
+  # [z] (s -n (A z))
 
 // Zero of an inductive Nat
 . zero
 : Nat
-= @Nat [-P] [s] [s = s] | [z] z
+= @Nat [-P] [s]
+  dup s = s
+  # [z] z
 
-// Its induction hypopthesis is a simple use (`~`) of the self axiom
+// Its induction hypothesis is a simple use (`~`) of the self axiom
 . induction
 : {-P : {:Nat} Type}
   {s  : ! {n : Nat} {x : (P n)} (P (succ n))}
@@ -59,9 +64,10 @@ This implements inductive natural numbers as well as the induction principle.
   {n  : Nat}
   ! (P n)
 = [-P] [s] [z] [n]
-  [succ = s]
-  [zero = z]
-  (~n -P |succ |zero)
+  dup succ = s
+  dup zero = z
+  dup fold = (~n -P #succ)
+  # (fold zero)
 ```
 
 
