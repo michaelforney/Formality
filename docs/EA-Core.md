@@ -6,9 +6,9 @@ An efficient calculus, similar to the λ-calculus, but based on Elementary Affin
 
 2. It is compatible with efficient optimal reductions (without costly book-keeping).
 
-This, in turn, allows us to compile EAC to an efficient, non garbage-collected, parallel runtime, [EA-Net](EA-Net.md). It is similar to [FM-Core](FM-Core) but without native numbers, making it easier to formalize. 
+This, in turn, allows us to compile EAC to an efficient, non garbage-collected, parallel runtime, [EA-Net](EA-Net.md). It is similar to [FM-Core](FM-Core.md) but without native numbers, making it easier to formalize. 
 
-[Check its specification](../spec/EA-Core)
+[Check its specification](https://gitlab.com/moonad/formality/blob/master/spec/EA-Core.md)
 
 ## Usage
 

@@ -12,7 +12,7 @@ An optimal compilation target for functional programming languages. It is:
 
 5. **Terminating:** computations are guaranteed to halt.
 
-6. **Portable:** soon-to-be implemented in [FM-NET](FM-Net), a portable, 400-LOC runtime.
+6. **Portable:** soon-to-be implemented in [FM-NET](/docs/FM-Net.md), a portable, 400-LOC runtime.
 
 This repository includes a reference implementation in [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/tree/master/FM-Core). We're working in specifications/formalizations, and low-level (LLVM/CUDA) backends.
 
@@ -86,7 +86,7 @@ For a reference of the language features, check our [documentation](https://docs
 
 ## Theory
 
-Formality-Core is based on the [Elementary Affine Core](EA-Core), extended with numeric primitives and pairs. It is compiled to a lightweight interaction net system based on [Symmetric Interaction Combinators](https://pdfs.semanticscholar.org/1731/a6e49c6c2afda3e72256ba0afb34957377d3.pdf) for evaluation, as shown below:
+Formality-Core is based on the [Elementary Affine Core](docs/EA-Core.md), extended with numeric primitives and pairs. It is compiled to a lightweight interaction net system based on [Symmetric Interaction Combinators](https://pdfs.semanticscholar.org/1731/a6e49c6c2afda3e72256ba0afb34957377d3.pdf) for evaluation, as shown below:
 
 <img src="https://gitlab.com/moonad/formality/raw/master/docs/images/inet-simulation.gif" width="600" height="451" />
 

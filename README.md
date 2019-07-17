@@ -8,7 +8,7 @@ A upcoming efficient proof-gramming language. It aims to be:
 
 - **Portable:** the full language is implemented in a 400-LOC runtime, making it easily available everywhere.
 
-Formality isn't ready yet, but you can already use [Formality-Core](docs/FM-Core), our low-level compile target ([check its docs!](https://docs.formality-lang.org/en/latest/)), and [EA-TT](/docs/EA-TT), our underlying proof language.
+Formality isn't ready yet, but you can already use [Formality-Core](/docs/FM-Core.md), our low-level compile target ([check its docs!](https://docs.formality-lang.org/en/latest/)), and [EA-TT](/docs/EA-TT.md), our underlying proof language.
 
 ## Projects
 
@@ -16,8 +16,8 @@ For a better separation of concerns, Formality was broken down into sub-projects
 
 Features | **Calculus** | **Type-Theory** | **Runtime**
 --- | --- | --- | ---
-Lam, Box | [EA-Core](docs/EA-Core) | [EA-TT](docs/EA-TT) | [EA-Net](docs/EA-Net)
-Lam, Box, Pair, Uint32 | [FM-Core](docs/FM-Core) | [FM-TT - TODO](docs/FM-TT) | [FM-Net](FM-Net)
+Lam, Box | [EA-Core](/docs/EA-Core.md) | [EA-TT](/docs/EA-TT.md) | [EA-Net](/docs/EA-Net.md)
+Lam, Box, Pair, Uint32 | [FM-Core](/docs/FM-Core.md) | [FM-TT - TODO](/docs/FM-TT.md) | [FM-Net](/docs/FM-Net.md)
 
 `FM-Core` is our low-level, untyped compile target, `FM-TT` is our raw type theory and `FM-Net` is our efficient interaction-net runtime. `EA-Core`, `EA-TT` and `EA-Net` are their formalization-friendly counterparts, excluding native ints to be easier to reason about. Formality will be a high-level, Python/Agda-inspired syntax built on top of those. [Here is a sneak peek!](https://gist.github.com/MaiaVictor/489a4119efd49f16605f8d4d09d421ad)
 
@@ -33,7 +33,7 @@ EA-Core | Command-line interface. | [JavaScript](https://gitlab.com/moonad/Forma
 EA-Core | Formalization. | [Agda (ongoing)](https://gitlab.com/moonad/formality-agda)
 EA-Core | Specification. | [Markdown (ongoing)](spec/EA-Core.md)
 EA-Net | Strict and Lazy runtime. | [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/blob/master/EA-Net/ea-net.js)
-EA-TT | Parser, interpreter, type-checker. | [JavaScript](https://github.com/moonad/Formality-JavaScript/blob/master/EA-TT/ea-tt.js)
+EA-TT | Parser, interpreter, type-checker. | [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/blob/master/EA-TT/ea-tt.js)
 EA-TT | EA-Core compiler/decompiler. | [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/blob/master/EA-TT/ea-tt.js)
 EA-TT | Command-line interface. | [JavaScript](https://gitlab.com/moonad/Formality-JavaScript/blob/master/EA-TT/main.js)
 EA-TT | Specification. | [Markdown (ongoing)](spec/EA-TT.md)
