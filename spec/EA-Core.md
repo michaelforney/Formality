@@ -112,8 +112,8 @@ level(p : ps, {x} t)         = level(ps, t)
 level(L : ps, (t t'))        = level(ps, t)
 level(R : ps, (t t'))        = level(ps, t')
 level(p : ps, # t)           = 1 + level(ps, t)
-level(L : ps, dup x = t; t') = level(ps, a)
-level(R : ps, dup x = t; t') = level(ps, b)
+level(L : ps, dup x = t; t') = level(ps, t)
+level(R : ps, dup x = t; t') = level(ps, t')
 ```
 
 Lets define `size(t, n)` as the number of constructors that a term `t` has on level `n` exactly. Ex:
