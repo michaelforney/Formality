@@ -1,12 +1,76 @@
-// TODO: update this file
+// TODO type annotations are still subject to change
 
-def None:
-  {None Just}
-  None
+// Maybe
 
-def Just: {val}
-  {None Just}
-  (Just val)
+// | Case analysis for `Maybe A`.
+// : {A : Type, B : Type, none : B, just : (A -> B), maybe : (Maybe A)} -> B
+def Maybe: {none just maybe}
+  (maybe none ({a} (just a)))
 
-def maybe_concat: {a b}
-  (a b Just)
+// | The empty constructor for `Maybe A`; comparable to `Nothing` in Haskell.
+// : {A : Type} -> (Maybe A)
+def Maybe.None:
+  ({none just} (none))
+
+// | The non-empty constructor for `Maybe A`; comparable to `Just` in Haskell.
+// : {A : Type, a : A} -> (Maybe A)
+def Maybe.Just: {a}
+  ({none just} (just a))
+
+// | Check if the given `Maybe A` is non-empty.
+// : {A : Type, maybe : (Maybe A)} -> Bool
+def Maybe.is_just: {maybe}
+  let none =     Bool.false
+  let just = {a} Bool.true
+  (maybe none just)
+
+// | Check if the given `Maybe A` is empty.
+// : {A : Type, maybe : (Maybe A)} -> Bool
+def Maybe.is_none: {maybe}
+  let none =     Bool.true
+  let just = {a} Bool.false
+  (maybe none just)
+
+// | Apply a function to the value inside a `Maybe a` if it exists.
+// : {A : Type, B : Type, ab : (A -> B), ab : (A -> B), maybe : (Maybe A)} -> (Maybe B)
+def Maybe.map: {ab maybe}
+  let none =      Maybe.None
+  let just = {a} (Maybe.Just (ab a))
+  (maybe none just)
+
+// | Extract the value from a `Maybe a` if it is nonempty, otherwise return the provided default.
+// : {A : Type, default : A, maybe : (Maybe A)} -> A
+def Maybe.from_maybe: {default maybe}
+  let none = default
+  let just = ({ab} ab)
+  (maybe none just)
+
+// Examples
+
+// Just 1
+def Maybe.ex1:
+  (Maybe.Just 1)
+
+// true
+def Maybe.ex2:
+  (Maybe.is_just Maybe.ex1)
+
+// false
+def Maybe.ex3:
+  (Maybe.is_none Maybe.ex1)
+
+// 1 (extract the value from from Maybe.ex1)
+def Maybe.ex4:
+  (Maybe.from_maybe 0 Maybe.ex1)
+
+// 0
+def Maybe.ex5:
+  (Maybe.from_maybe 0 Maybe.None)
+
+// Just 1
+def Maybe.ex6:
+  (Maybe.map Nat.succ (Maybe.Just Nat.zero))
+
+// None
+def Maybe.ex7:
+  (Maybe.map Nat.succ (Maybe.None))

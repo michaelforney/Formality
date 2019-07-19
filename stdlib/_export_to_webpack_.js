@@ -2,6 +2,7 @@ var arr     = require("./arr.fmc").default;
 var bits    = require("./bits.fmc").default;
 var bool    = require("./bool.fmc").default;
 var cat     = require("./cat.fmc").default;
+var either  = require("./either.fmc").default;
 var global  = require("./global.fmc").default;
 var kaelin  = require("./kaelin.fmc").default;
 var keccak  = require("./keccak.fmc").default;
@@ -24,6 +25,7 @@ module.exports = [
   bits,
   bool,
   cat,
+  either,
   global,
   kaelin,
   keccak,

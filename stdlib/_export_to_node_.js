@@ -2,6 +2,7 @@ var fs      = require("fs");
 var array   = fs.readFileSync(__dirname + "/array.fmc", "utf8");
 var bits    = fs.readFileSync(__dirname + "/bits.fmc", "utf8");
 var bool    = fs.readFileSync(__dirname + "/bool.fmc", "utf8");
+var either  = fs.readFileSync(__dirname + "/either.fmc", "utf8");
 var hash    = fs.readFileSync(__dirname + "/hash.fmc", "utf8");
 var kaelin  = fs.readFileSync(__dirname + "/kaelin.fmc", "utf8");
 var list    = fs.readFileSync(__dirname + "/list.fmc", "utf8");
@@ -20,6 +21,7 @@ module.exports = [
   array,
   bits,
   bool,
+  either,
   hash,
   kaelin,
   list,

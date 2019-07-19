@@ -1,22 +1,45 @@
-// Pair
-// | A simple, non-dependent pair
-// TODO: annotate type (follow Bits.fmc)
-def Pair: {a b} [a, b]
+// TODO type annotations are still subject to change
 
-// TODO: annotate type (follow Bits.fmc)
+// Pair
+
+// | A simple, non-dependent pair
+// : {A : Type, B : Type, a : A, a : A, b : B} -> (Pair A B)
+def Pair: {a b}
+  [a, b]
+
+// | Retrieve the first component of the pair.
+// : {A : Type, B : Type, pair : (Pair A B)} -> A
 def Pair.fst: {pair}
   fst pair
 
-// TODO: annotate type (follow Bits.fmc)
+// | Retrieve the second component of the pair.
+// : {A : Type, B : Type, pair : (Pair A B)} -> B
 def Pair.snd: {pair}
   snd pair
 
-// TODO: annotate type (follow Bits.fmc)
-def Pair.prj: {pair func}
-  get [val0, val1] = pair
-  (func val0 val1)
-
-// TODO: annotate type (follow Bits.fmc)
+// | Swap the given pair.
+// : {A : Type, B : Type, pair : (Pair A B)} -> (Pair B A)
 def Pair.swap: {pair}
   get [a, b] = pair
   [b, a]
+
+// | Convert a curried function to a function on pairs.
+// : {A : Type, B : Type, C : Type, abc : (A -> B -> C), pair : (Pair A B)} -> C
+def Pair.uncurry: {abc pair}
+  get [a, b] = pair
+  (abc a b)
+
+// | Convert a function on pairs to a curried function.
+// : {A : Type, B : Type, C : Type, f : ((Pair A B) -> C), a : A, b : B} -> C
+def Pair.curry: {f a b}
+  (f [a, b])
+
+// | Map over both sides of the pair at the same time.
+// : {A : Type, B : Type, C : Type, D : Type, ab : (A -> B), cd : (C -> D), pair : (Pair A C)} -> (Pair B D)
+def Pair.bimap: {ab cd pair}
+  get [a, c] = pair
+  [(ab a), (cd c)]
+
+// map (+1) over both sides of (0, 1) resulting in (1, 2)
+def Pair.ex1:
+  (Pair.bimap Nat.succ Nat.succ [0, 1])
