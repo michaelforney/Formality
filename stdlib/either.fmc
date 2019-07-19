@@ -1,0 +1,126 @@
+// TODO type annotations are still subject to change
+
+// Lambda encoded sum type, comparable to Haskell's `Either a b` type.
+
+// | Case analysis for the 'Either A B' type.
+// | Apply a function to the value inside an `Either A B` type by
+// | providing two functions, a function for the `Left` case and
+// | a function for the `Right` case.
+// : {A : Type, B : Type, C : Type, ac : (A -> C), bc : (B -> C), either : (Either A B)} -> C
+def Either: {ac bc either}
+  (either ac bc)
+
+// | Lift a value into the `Left` constructor.
+// : {A : Type, B : Type, a : A} -> (Either A B)
+def Either.Left: {a}
+  ({left right} (left a))
+
+// | Lift a value into the `Right` constructor.
+// : {A : Type, B : Type, b : B} -> (Either A B)
+def Either.Right: {b}
+  ({left right} (right b))
+
+// | Check if a value is in the `Left` constructor for the given `Either A B`
+// : {A : Type, B : Type, either : (Either A B)} -> Bool
+def Either.is_left: {either}
+  let left  = {a} (Bool.true)
+  let right = {b} (Bool.false)
+  (either left right)
+
+// | Check if a value is in the `Right` constructor for the given `Either A B`
+// : {A : Type, B : Type, either : (Either A B)} -> Bool
+def Either.is_right: {either}
+  let left  = {a} (Bool.false)
+  let right = {b} (Bool.true)
+  (either left right)
+
+def Either.from_left: {default either}
+  let left  = {a} a
+  let right = {b} default
+  (either left right)
+
+// | Return the value inside the `Right` constructor, or the default value if
+// | the value is inside the `Left` constructor.
+// : {A : Type, B : Type, default : B, either : (Either A B)} -> B
+def Either.from_right: {default either}
+  let left  = {a} default
+  let right = {b} b
+  (either left right)
+
+// | Map over both `Left` and `Right` constructors.
+// : {A : Type, B : Type, C : Type, D : Type, ab : (A -> B), cd : (C -> D), either : (Either A C)} -> (Either B D)
+def Either.bimap: {ab cd either}
+  let left  = {a} (Either.Left  (ab a))
+  let right = {c} (Either.Right (cd c))
+  (either left right)
+
+// | Map over the `Right` constructor.
+// : {A : Type, B : Type, C : Type, ab : (A -> B), either : (Either C A)} -> (Either C B)
+def Either.map: {ab either}
+  let left  = {c} (Either.Left      c )
+  let right = {a} (Either.Right (ab a))
+  (either left right)
+
+// | Swap the given `Either A B` type to `Either B A`,
+// | i.e. if the given constructor is `Left` then change to `Right`, else change `Right` to `Left`
+// : {A : Type, B : Type, either : (Either A B)} -> (Either B A)
+def Either.swap: {either}
+  ({left right} (either right left))
+
+// Examples
+
+// Right 5
+def Either.ex1:
+  (Either.Right 5)
+
+// true
+def Either.ex2:
+  (Either.is_right (Either.ex1))
+
+// false
+def Either.ex3:
+  (Either.is_right (Either.Left  5))
+
+// true
+def Either.ex4:
+  (Either.is_left  (Either.Left  5))
+
+// false
+def Either.ex5:
+  (Either.is_left  (Either.Right 5))
+
+// false
+def Either.ex6:
+  (Either Bool.not Bool.not (Either.Left Bool.true))
+
+// true
+def Either.ex7:
+  (Either Fun.id Fun.id (Either.Left Bool.true))
+
+// Left 6
+def Either.ex8:
+  (Either.bimap (Nat.succ) (Fun.id) (Either.Left 5))
+
+// Left 0
+def Either.ex9:
+  (Either.map Nat.succ (Either.Left Nat.zero))
+
+// Right 1
+def Either.ex10:
+  (Either.map Nat.succ (Either.Right Nat.zero))
+
+// Right 1 (constructed without a call to `map`)
+def Either.ex11:
+  (Either.Right 1)
+
+// 1 (extract the value from from Either.ex11)
+def Either.ex12:
+  (Either.from_right 0 Either.ex11)
+
+// Left 5
+def Either.ex13:
+  (Either.swap (Either.Right 5))
+
+// Right 5
+def Either.ex14:
+  (Either.swap (Either.ex13))
