@@ -205,8 +205,8 @@ def Term.to_string:
     let case_num = {numb} {go}
       [go, (Num.to_chars ~10 numb)]
     let case_op1 = {func num0 num1} {go}
-      get [go, num0] = (go num0 depth)
-      get [go, num1] = (go num1 depth)
+      get [go, num0] = (go depth num0)
+      get [go, num1] = (go depth num1)
       let text = List.nil
       let text = (List.concat text (to_chars "|"))
       let text = (List.concat text num0)
@@ -217,8 +217,8 @@ def Term.to_string:
       let text = (List.concat text (to_chars "|"))
       [go, text]
     let case_op2 = {func num0 num1} {go}
-      get [go, num0] = (go num0 depth)
-      get [go, num1] = (go num1 depth)
+      get [go, num0] = (go depth num0)
+      get [go, num1] = (go depth num1)
       let text = List.nil
       let text = (List.concat text (to_chars "|"))
       let text = (List.concat text num0)
@@ -229,8 +229,8 @@ def Term.to_string:
       let text = (List.concat text (to_chars "|"))
       [go, text]
     let case_ite = {cond pair} {go}
-      get [go, cond] = (go cond depth)
-      get [go, pair] = (go pair depth)
+      get [go, cond] = (go depth cond)
+      get [go, pair] = (go depth pair)
       let text = List.nil
       let text = (List.concat text (to_chars "(if "))
       let text = (List.concat text cond)
@@ -239,57 +239,154 @@ def Term.to_string:
       let text = (List.concat text (to_chars ")"))
       [go, text]
     let case_cpy = {name numb body} {go}
+      get [go, numb] = (go depth numb)
+      get [go, body] = (go |depth + 1| body)
       let text = List.nil
+      let text = (List.concat text (to_chars "cpy "))
+      let text = (List.concat text (gen_name depth))
+      let text = (List.concat text (to_chars " = "))
+      let text = (List.concat text numb)
+      let text = (List.concat text (to_chars "; "))
+      let text = (List.concat text body)
       [go, text]
 
     let case_sig = {name typ0 typ1 eras} {go}
+      get [go, typ0] = (go depth typ0)
+      get [go, typ1] = (go |depth + 1| typ1)
       let text = List.nil
+      let text = (List.concat text (to_chars "["))
+      let text = (List.concat text (gen_name depth))
+      let text = (List.concat text (to_chars " : "))
+      let text = (List.concat text typ0)
+      let text = (List.concat text (to_chars (eras " ~ " ",")))
+      let text = (List.concat text typ1)
+      let text = (List.concat text (to_chars "]"))
       [go, text]
     let case_par = {val0 val1 eras} {go}
+      get [go, val0] = (go depth val0)
+      get [go, val1] = (go depth val1)
       let text = List.nil
+      let text = (List.concat text (to_chars "["))
+      let text = (List.concat text val0)
+      let text = (List.concat text (to_chars ", "))
+      let text = (List.concat text (eras (to_chars "~") List.nil))
+      let text = (List.concat text val1)
+      let text = (List.concat text (to_chars "]"))
       [go, text]
     let case_fst = {pair eras} {go}
+      get [go, pair] = (go depth pair)
       let text = List.nil
+      let text = (List.concat text (to_chars "("))
+      let text = (List.concat text (eras (to_chars "~") List.nil))
+      let text = (List.concat text (to_chars "fst "))
+      let text = (List.concat text pair)
+      let text = (List.concat text (to_chars ")"))
       [go, text]
     let case_snd = {pair eras} {go}
+      get [go, pair] = (go depth pair)
       let text = List.nil
+      let text = (List.concat text (to_chars "("))
+      let text = (List.concat text (eras (to_chars "~") List.nil))
+      let text = (List.concat text (to_chars "snd "))
+      let text = (List.concat text pair)
+      let text = (List.concat text (to_chars ")"))
       [go, text]
     let case_prj = {nam0 nam1 pair body eras} {go}
+      get [go, pair] = (go depth pair)
+      get [go, body] = (go |depth + 2| body)
       let text = List.nil
+      let text = (List.concat text (to_chars "get ["))
+      let text = (List.concat text (gen_name depth))
+      let text = (List.concat text (to_chars ", "))
+      let text = (List.concat text (eras (to_chars "~") List.nil))
+      let text = (List.concat text (gen_name |depth + 1|))
+      let text = (List.concat text (to_chars "] = "))
+      let text = (List.concat text pair)
+      let text = (List.concat text (to_chars "; "))
+      let text = (List.concat text body)
       [go, text]
 
     let case_eql = {val0 val1} {go}
+      get [go, val0] = (go depth val0)
+      get [go, val1] = (go depth val1)
       let text = List.nil
+      let text = (List.concat text (to_chars "<"))
+      let text = (List.concat text val0)
+      let text = (List.concat text (to_chars " == "))
+      let text = (List.concat text val1)
+      let text = (List.concat text (to_chars ">"))
       [go, text]
     let case_rfl = {expr} {go}
+      get [go, expr] = (go depth expr)
       let text = List.nil
+      let text = (List.concat text (to_chars "(refl "))
+      let text = (List.concat text expr)
+      let text = (List.concat text (to_chars ")"))
       [go, text]
     let case_sym = {prof} {go}
+      get [go, prof] = (go depth prof)
       let text = List.nil
+      let text = (List.concat text (to_chars "(sym "))
+      let text = (List.concat text prof)
+      let text = (List.concat text (to_chars ")"))
       [go, text]
     let case_rwt = {prof name type expr} {go}
+      get [go, prof] = (go depth prof)
+      get [go, type] = (go |depth + 1| type)
+      get [go, expr] = (go depth expr)
       let text = List.nil
+      let text = (List.concat text (to_chars "(rwt "))
+      let text = (List.concat text prof)
+      let text = (List.concat text (to_chars " <"))
+      let text = (List.concat text (gen_name depth))
+      let text = (List.concat text (to_chars " @ "))
+      let text = (List.concat text type)
+      let text = (List.concat text (to_chars "> "))
+      let text = (List.concat text expr)
+      let text = (List.concat text (to_chars ")"))
       [go, text]
     let case_cst = {prof val0 val1} {go}
+      get [go, prof] = (go depth prof)
+      get [go, val0] = (go depth val0)
+      get [go, val1] = (go depth val1)
       let text = List.nil
+      let text = (List.concat text (to_chars "(cst "))
+      let text = (List.concat text prof)
+      let text = (List.concat text (to_chars " "))
+      let text = (List.concat text val0)
+      let text = (List.concat text (to_chars " "))
+      let text = (List.concat text val1)
+      let text = (List.concat text (to_chars ")"))
       [go, text]
 
     let case_slf = {name type} {go}
+      get [go, type] = (go |depth + 1| type)
       let text = List.nil
+      let text = (List.concat text (to_chars "$"))
+      let text = (List.concat text (gen_name depth))
+      let text = (List.concat text (to_chars " "))
+      let text = (List.concat text type)
       [go, text]
     let case_new = {type expr} {go}
+      get [go, type] = (go depth type)
+      get [go, expr] = (go depth expr)
       let text = List.nil
+      let text = (List.concat text (to_chars "@"))
+      let text = (List.concat text type)
+      let text = (List.concat text (to_chars " "))
+      let text = (List.concat text expr)
       [go, text]
     let case_use = {expr} {go}
+      get [go, expr] = (go depth expr)
       let text = List.nil
+      let text = (List.concat text (to_chars "%"))
+      let text = (List.concat text expr)
       [go, text]
 
     let case_ann = {type expr done} {go}
-      let text = List.nil
-      [go, text]
+      (go depth expr)
     let case_ref = {name eras} {go}
-      let text = List.nil
-      [go, text]
+      [go, name]
     (Term.match term case_var case_typ case_all case_lam case_app case_box case_put case_dup case_uit case_num case_op1 case_op2 case_ite case_cpy case_sig case_par case_fst case_snd case_prj case_eql case_rfl case_sym case_rwt case_cst case_slf case_new case_use case_ann case_ref go)
   let stop = {depth term} [{x}x, term]
   dup func = (Term.rec #call #stop)
@@ -417,9 +514,7 @@ def Term.shift:
   dup func = (Term.rec #call #stop)
   # {inc depth term} (snd (func inc depth term))
 
-
 def Term.ex:
-
   // Library functions
   dup to_string = Term.to_string
   dup shift     = Term.shift
@@ -428,5 +523,4 @@ def Term.ex:
   //dup reduce    = Term.reduce
 
   //Example terms
-  //let TRUE  = (Lam (Lam (Var 0) Bool.false) Bool.false)
   # (to_string (shift 3 0 (Lam "A" (Just Typ) (Lam "x" (Just (Var 0)) (App (Var 2) (Var 1) Bool.false) Bool.false) Bool.true)))
