@@ -17,16 +17,11 @@ def PAR: 15
 def FST: 16
 def SND: 17
 def PRJ: 18
-def EQL: 19
-def RFL: 20
-def SYM: 21
-def RWT: 22
-def CST: 23
-def SLF: 24
-def NEW: 25
-def USE: 26
-def ANN: 27
-def REF: 28
+def SLF: 19
+def NEW: 20
+def USE: 21
+def ANN: 22
+def REF: 23
 
 def Var: {index}                    [VAR, {t} (t index)]
 def Typ:                            [TYP, {t} t]
@@ -47,18 +42,13 @@ def Par: {val0 val1 eras}           [PAR, {t} (t val0 val1 eras)]
 def Fst: {pair eras}                [FST, {t} (t pair eras)]
 def Snd: {pair eras}                [SND, {t} (t pair eras)]
 def Prj: {nam0 nam1 pair body eras} [PRJ, {t} (t nam0 nam1 pair body eras)]
-def Eql: {val0 val1}                [EQL, {t} (t val0 val1)]
-def Rfl: {expr}                     [RFL, {t} (t expr)]
-def Sym: {prof}                     [SYM, {t} (t prof)]
-def Rwt: {prof name type expr}      [RWT, {t} (t prof name type expr)]
-def Cst: {prof val0 val1}           [CST, {t} (t prof val0 val1)]
 def Slf: {name type}                [SLF, {t} (t name type)]
 def New: {type expr}                [NEW, {t} (t type expr)]
 def Use: {expr}                     [USE, {t} (t expr)]
 def Ann: {type expr done}           [ANN, {t} (t type expr done)]
 def Ref: {name eras}                [REF, {t} (t name eras)]
 
-def Term.match: {term Var Typ All Lam App Box Put Dup Uit Num Op1 Op2 Ite Cpy Sig Par Fst Snd Prj Eql Rfl Sym Rwt Cst Slf New Use Ann Ref}
+def Term.match: {term Var Typ All Lam App Box Put Dup Uit Num Op1 Op2 Ite Cpy Sig Par Fst Snd Prj Slf New Use Ann Ref}
   get [tag, fields] = term
   cpy tag = tag
   (fields
@@ -101,22 +91,12 @@ def Term.match: {term Var Typ All Lam App Box Put Dup Uit Num Op1 Op2 Ite Cpy Si
   else: if |tag == 18|
   then: Prj
   else: if |tag == 19|
-  then: Eql
-  else: if |tag == 20|
-  then: Rfl
-  else: if |tag == 21|
-  then: Sym
-  else: if |tag == 22|
-  then: Rwt
-  else: if |tag == 23|
-  then: Cst
-  else: if |tag == 24|
   then: Slf
-  else: if |tag == 25|
+  else: if |tag == 20|
   then: New
-  else: if |tag == 26|
+  else: if |tag == 21|
   then: Use
-  else: if |tag == 27|
+  else: if |tag == 22|
   then: Ann
   else: Ref)
 
@@ -306,59 +286,6 @@ def Term.to_string:
       let text = (List.concat text body)
       [go, text]
 
-    let case_eql = {val0 val1} {go}
-      get [go, val0] = (go depth val0)
-      get [go, val1] = (go depth val1)
-      let text = List.nil
-      let text = (List.concat text (to_chars "<"))
-      let text = (List.concat text val0)
-      let text = (List.concat text (to_chars " == "))
-      let text = (List.concat text val1)
-      let text = (List.concat text (to_chars ">"))
-      [go, text]
-    let case_rfl = {expr} {go}
-      get [go, expr] = (go depth expr)
-      let text = List.nil
-      let text = (List.concat text (to_chars "(refl "))
-      let text = (List.concat text expr)
-      let text = (List.concat text (to_chars ")"))
-      [go, text]
-    let case_sym = {prof} {go}
-      get [go, prof] = (go depth prof)
-      let text = List.nil
-      let text = (List.concat text (to_chars "(sym "))
-      let text = (List.concat text prof)
-      let text = (List.concat text (to_chars ")"))
-      [go, text]
-    let case_rwt = {prof name type expr} {go}
-      get [go, prof] = (go depth prof)
-      get [go, type] = (go |depth + 1| type)
-      get [go, expr] = (go depth expr)
-      let text = List.nil
-      let text = (List.concat text (to_chars "(rwt "))
-      let text = (List.concat text prof)
-      let text = (List.concat text (to_chars " <"))
-      let text = (List.concat text (gen_name depth))
-      let text = (List.concat text (to_chars " @ "))
-      let text = (List.concat text type)
-      let text = (List.concat text (to_chars "> "))
-      let text = (List.concat text expr)
-      let text = (List.concat text (to_chars ")"))
-      [go, text]
-    let case_cst = {prof val0 val1} {go}
-      get [go, prof] = (go depth prof)
-      get [go, val0] = (go depth val0)
-      get [go, val1] = (go depth val1)
-      let text = List.nil
-      let text = (List.concat text (to_chars "(cst "))
-      let text = (List.concat text prof)
-      let text = (List.concat text (to_chars " "))
-      let text = (List.concat text val0)
-      let text = (List.concat text (to_chars " "))
-      let text = (List.concat text val1)
-      let text = (List.concat text (to_chars ")"))
-      [go, text]
-
     let case_slf = {name type} {go}
       get [go, type] = (go |depth + 1| type)
       let text = List.nil
@@ -387,7 +314,7 @@ def Term.to_string:
       (go depth expr)
     let case_ref = {name eras} {go}
       [go, name]
-    (Term.match term case_var case_typ case_all case_lam case_app case_box case_put case_dup case_uit case_num case_op1 case_op2 case_ite case_cpy case_sig case_par case_fst case_snd case_prj case_eql case_rfl case_sym case_rwt case_cst case_slf case_new case_use case_ann case_ref go)
+    (Term.match term case_var case_typ case_all case_lam case_app case_box case_put case_dup case_uit case_num case_op1 case_op2 case_ite case_cpy case_sig case_par case_fst case_snd case_prj case_slf case_new case_use case_ann case_ref go)
   let stop = {depth term} [{x}x, term]
   dup func = (Term.rec #call #stop)
   # {term} (from_chars (snd (func 0 term)))
@@ -470,27 +397,6 @@ def Term.shift:
       get [go, body] = (go inc |depth + 2| body)
       [go, (Prj nam0 nam1 pair body eras)]
 
-    let case_eql = {val0 val1} {go}
-      get [go, val0] = (go inc depth val0)
-      get [go, val1] = (go inc depth val1)
-      [go, (Eql val0 val1)]
-    let case_rfl = {expr} {go}
-      get [go, expr] = (go inc depth expr)
-      [go, (Rfl expr)]
-    let case_sym = {prof} {go}
-      get [go, prof] = (go inc depth prof)
-      [go, (Sym prof)]
-    let case_rwt = {prof name type expr} {go}
-      get [go, prof] = (go inc depth prof)
-      get [go, type] = (go inc |depth + 1| type)
-      get [go, expr] = (go inc depth expr)
-      [go, (Rwt prof name type expr)]
-    let case_cst = {prof val0 val1} {go}
-      get [go, prof] = (go inc depth prof)
-      get [go, val0] = (go inc depth val0)
-      get [go, val1] = (go inc depth val1)
-      [go, (Cst prof val0 val1)]
-
     let case_slf = {name type} {go}
       get [go, type] = (go inc |depth + 1| type)
       [go, (Slf name type)]
@@ -509,18 +415,160 @@ def Term.shift:
     let case_ref = {name eras} {go}
       [go, (Ref name eras)]
 
-    (Term.match term case_var case_typ case_all case_lam case_app case_box case_put case_dup case_uit case_num case_op1 case_op2 case_ite case_cpy case_sig case_par case_fst case_snd case_prj case_eql case_rfl case_sym case_rwt case_cst case_slf case_new case_use case_ann case_ref go)
+    (Term.match term case_var case_typ case_all case_lam case_app case_box case_put case_dup case_uit case_num case_op1 case_op2 case_ite case_cpy case_sig case_par case_fst case_snd case_prj case_slf case_new case_use case_ann case_ref go)
   let stop = {inc depth term} [{x}x, term]
   dup func = (Term.rec #call #stop)
   # {inc depth term} (snd (func inc depth term))
+
+def Term.copy:
+  let call = {go term}
+    let case_var = {indx} {go}
+      cpy indx = indx
+      [go, [(Var indx), (Var indx)]]
+    let case_typ = {go}
+      [go, [Typ, Typ]]
+
+    let case_all = {name bind body eras} {go}
+      get [go, bodys]   = (go body)
+      get [go, binds]   = (go bind)
+      get [body0, body1] = bodys
+      get [bind0, bind1] = binds
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(All name bind0 body0 eras0), (All "" bind1 body1 eras1)]]
+    let case_lam = {name opt_bind body eras} {go}
+      get [go, bodys]   = (go body)
+      get [go, opt_binds]   = (opt_bind
+                                {go} [go, [None, None]]
+                                {bind go} (Pair.prj
+                                            (go bind)
+                                            {go p} [go, (Pair.prj p {x y} [(Just x),(Just y)])]) go)
+      get [body0, body1] = bodys
+      get [opt_bind0, opt_bind1] = opt_binds
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Lam name opt_bind0 body0 eras0), (Lam "" opt_bind1 body1 eras1)]]
+    let case_app = {func argm eras} {go}
+      get [go, funcs]    = (go func)
+      get [go, argms]    = (go argm)
+      get [func0, func1] = funcs
+      get [argm0, argm1] = argms
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(App func0 argm0 eras0), (App func1 argm1 eras1)]]
+
+    let case_box = {expr} {go}
+      get [go, exprs]    = (go expr)
+      get [expr0, expr1] = exprs
+      [go, [(Box expr0), (Box expr1)]]
+    let case_put = {expr} {go}
+      get [go, exprs]    = (go expr)
+      get [expr0, expr1] = exprs
+      [go, [(Put expr0), (Put expr1)]]
+    let case_dup = {name expr body} {go}
+      get [go, exprs]    = (go expr)
+      get [go, bodys]    = (go body)
+      get [expr0, expr1] = exprs
+      get [body0, body1] = bodys
+      [go, [(Dup name expr0 body0), (Dup "" expr1 body1)]]
+
+    let case_uit = {go} [go, [Uit, Uit]]
+    let case_num = {numb} {go}
+      cpy numb = numb
+      [go, [(Num numb), (Num numb)]]
+    let case_op1 = {func num0 num1} {go}
+      cpy num0 = num0
+      cpy num1 = num1
+      get [go, funcs]    = (go func)
+      get [func0, func1] = funcs
+      [go, [(Op1 func0 num0 num1), (Op1 func1 num0 num1)]]
+    let case_op2 = {func num0 num1} {go}
+      cpy num0 = num0
+      cpy num1 = num1
+      get [go, funcs]    = (go func)
+      get [func0, func1] = funcs
+      [go, [(Op2 func0 num0 num1), (Op2 func1 num0 num1)]]
+    let case_ite = {cond pair} {go}
+      get [go, conds]    = (go cond)
+      get [go, pairs]    = (go pair)
+      get [cond0, cond1] = conds
+      get [pair0, pair1] = pairs
+      [go, [(Ite cond0 pair0), (Ite cond1 pair1)]]
+    let case_cpy = {name numb body} {go}
+      cpy numb = numb
+      get [go, bodys]    = (go body)
+      get [body0, body1] = bodys
+      [go, [(Cpy name numb body0), (Cpy "" numb body1)]]
+
+    let case_sig = {name typ0 typ1 eras} {go}
+      get [go, typ0s]    = (go typ0)
+      get [go, typ1s]    = (go typ1)
+      get [typ00, typ01] = typ0s
+      get [typ10, typ11] = typ1s
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Sig name typ00 typ10 eras0), (Sig "" typ01 typ11 eras1)]]
+    let case_par = {val0 val1 eras} {go}
+      get [go, val0s]    = (go val0)
+      get [go, val1s]    = (go val1)
+      get [val00, val01] = val0s
+      get [val10, val11] = val1s
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Par val00 val10 eras0), (Par val01 val11 eras1)]]
+    let case_fst = {pair eras} {go}
+      get [go, pairs]    = (go pair)
+      get [pair0, pair1] = pairs
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Fst pair0 eras0), (Fst pair1 eras1)]]
+    let case_snd = {pair eras} {go}
+      get [go, pairs]    = (go pair)
+      get [pair0, pair1] = pairs
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Snd pair0 eras0), (Snd pair1 eras1)]]
+    let case_prj = {nam0 nam1 pair body eras} {go}
+      get [go, pairs]    = (go pair)
+      get [go, bodys]    = (go body)
+      get [pair0, pair1] = pairs
+      get [body0, body1] = bodys
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Prj nam0 nam1 pair0 body0 eras0), (Prj "" "" pair1 body1 eras1)]]
+
+    let case_slf = {name type} {go}
+      get [go, types]    = (go type)
+      get [type0, type1] = types
+      [go, [(Slf name type0), (Slf "" type1)]]
+    let case_new = {type expr} {go}
+      get [go, types]    = (go type)
+      get [go, exprs]    = (go expr)
+      get [type0, type1] = types
+      get [expr0, expr1] = exprs
+      [go, [(New type0 expr0), (New type1 expr1)]]
+    let case_use = {expr} {go}
+      get [go, exprs]    = (go expr)
+      get [expr0, expr1] = exprs
+      [go, [(Use expr0), (Use expr1)]]
+
+    let case_ann = {type expr done} {go}
+      get [go, types]    = (go type)
+      get [go, exprs]    = (go expr)
+      get [type0, type1] = types
+      get [expr0, expr1] = exprs
+      get [done0, done1] = (done [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Ann type0 expr0 done0), (Ann type1 expr1 done1)]]
+    let case_ref = {name eras} {go}
+      get [eras0, eras1] = (eras [Bool.true, Bool.true] [Bool.false, Bool.false])
+      [go, [(Ref name eras0), (Ref "" eras1)]]
+
+    (Term.match term case_var case_typ case_all case_lam case_app case_box case_put case_dup case_uit case_num case_op1 case_op2 case_ite case_cpy case_sig case_par case_fst case_snd case_prj case_slf case_new case_use case_ann case_ref go)
+  let stop = {term} [{x}x, term]
+  dup func = (Term.rec #call #stop)
+  # {term} (snd (func term))
+
 
 def Term.ex:
   // Library functions
   dup to_string = Term.to_string
   dup shift     = Term.shift
   //dup subst     = Term.subst
-  //dup copy      = Term.copy
+  dup copy      = Term.copy
   //dup reduce    = Term.reduce
 
   //Example terms
-  # (to_string (shift 3 0 (Lam "A" (Just Typ) (Lam "x" (Just (Var 0)) (App (Var 2) (Var 1) Bool.false) Bool.false) Bool.true)))
+  # (Pair.prj
+      (copy (shift 3 0 (Lam "A" (Just Typ) (Lam "x" (Just (Var 0)) (App (Var 2) (Var 1) Bool.false) Bool.false) Bool.true))) {x y} [(to_string x), (to_string y)])
