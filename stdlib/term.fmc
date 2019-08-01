@@ -420,6 +420,7 @@ def Term.shift:
   dup func = (Term.rec #call #stop)
   # {inc depth term} (snd (func inc depth term))
 
+// Term.copy almost complete; still needs to be able to copy strings. Currently passes the empty string as the second element of the pair.
 def Term.copy:
   let call = {go term}
     let case_var = {indx} {go}
@@ -560,15 +561,131 @@ def Term.copy:
   dup func = (Term.rec #call #stop)
   # {term} (snd (func term))
 
+def Term.subst:
+  dup shift = Term.shift
+  dup copy  = Term.copy
+  let call = {go inc depth val term}
+    cpy depth = depth
+    cpy inc   = inc
+
+    let case_var = {indx} {go val}
+      cpy indx = indx
+      [go, if |indx == depth|
+        then: (shift inc 0 val)
+        else: (Var |indx - (if |indx > depth| [1,0])|)]
+    let case_typ = {go val} [go, Typ]
+    let case_all = {name bind body eras} {go val}
+      get [val0, val1] = (copy val)
+      get [go, bind] = (go inc depth val0 bind)
+      get [go, body] = (go |inc + 1| |depth + 1| val1 body)
+      [go, (App name bind body eras)]
+    let case_lam = {name opt_bind body eras} {go val}
+      get [val0, val1] = (copy val)
+      get [go, body] = (go |inc + 1| |depth + 1| val0 body)
+      get [go, opt_bind] = (opt_bind
+                             {go} [go, None]
+                             {bind go}
+                               get [go, bind] = (go inc depth val1 bind)
+                               [go, (Just bind)]
+                             go)
+      [go, (Lam name opt_bind body eras)]
+    let case_app = {func argm eras} {go val}
+      get [val0, val1] = (copy val)
+      get [go, func]   = (go inc depth val0 func)
+      get [go, argm]   = (go inc depth val1 argm)
+      [go, (App func argm eras)]
+
+    let case_box = {expr} {go val}
+      get [go, expr] = (go inc depth val expr)
+      [go, (Box expr)]
+    let case_put = {expr} {go val}
+      get [go, expr] = (go inc depth val expr)
+      [go, (Put expr)]
+    let case_dup = {name expr body} {go val}
+      get [val0, val1] = (copy val)
+      get [go, expr]   = (go inc depth val0 expr)
+      get [go, body]   = (go |inc + 1| |depth + 1| val1 body)
+      [go, (Dup name expr body)]
+
+    let case_uit = {go val} [go, Uit]
+    let case_num = {numb} {go val} [go, (Num numb)]
+    let case_op1 = {func num0 num1} {go val}
+      get [val0, val1] = (copy val)
+      get [go, num0]   = (go inc depth val0 num0)
+      get [go, num1]   = (go inc depth val1 num1)
+      [go, (Op1 func num0 num1)]
+    let case_op2 = {func num0 num1} {go val}
+      get [val0, val1] = (copy val)
+      get [go, num0]   = (go inc depth val0 num0)
+      get [go, num1]   = (go inc depth val1 num1)
+      [go, (Op2 func num0 num1)]
+    let case_ite = {cond pair} {go val}
+      get [val0, val1] = (copy val)
+      get [go, cond]   = (go inc depth val0 cond)
+      get [go, pair]   = (go inc depth val1 pair)
+      [go, (Ite cond pair)]
+    let case_cpy = {name numb body} {go val}
+      get [val0, val1] = (copy val)
+      get [go, numb]   = (go inc depth val0 numb)
+      get [go, body]   = (go |inc + 1| |depth + 1| val1 body)
+      [go, (Cpy name numb body)]
+
+    let case_sig = {name typ0 typ1 eras} {go val}
+      get [val0, val1] = (copy val)
+      get [go, typ0]   = (go inc depth val0 typ0)
+      get [go, typ1]   = (go |inc + 1| |depth + 1| val1 typ1)
+      [go, (Sig name typ0 typ1 eras)]
+    let case_par = {par0 par1 eras} {go val}
+      get [val0, val1] = (copy val)
+      get [go, par0]   = (go inc depth val0 par0)
+      get [go, par1]   = (go inc depth val1 par1)
+      [go, (Par par0 par1 eras)]
+    let case_fst = {pair eras} {go val}
+      get [go, pair]   = (go inc depth val pair)
+      [go, (Fst pair eras)]
+    let case_snd = {pair eras} {go val}
+      get [go, pair]   = (go inc depth val pair)
+      [go, (Snd pair eras)]
+    let case_prj = {nam0 nam1 pair body eras} {go val}
+      get [val0, val1] = (copy val)
+      get [go, pair]   = (go inc depth val0 pair)
+      get [go, body]   = (go |inc + 2| |depth + 2| val1 body)
+      [go, (Prj nam0 nam1 pair body eras)]
+
+    let case_slf = {name type} {go val}
+      get [go, type]   = (go |inc + 1| |depth + 1| val type)
+      [go, (Slf name type)]
+    let case_new = {type expr} {go val}
+      get [val0, val1] = (copy val)
+      get [go, type]   = (go inc depth val0 type)
+      get [go, expr]   = (go inc depth val1 expr)
+      [go, (New type expr)]
+    let case_use = {expr} {go val}
+      get [go, expr]   = (go inc depth val expr)
+      [go, (Use expr)]
+
+    let case_ann = {type expr done} {go val}
+      get [val0, val1] = (copy val)
+      get [go, type]   = (go inc depth val0 type)
+      get [go, expr]   = (go inc depth val1 expr)
+      [go, (Ann type expr done)]
+    let case_ref = {name eras} {go val}
+      [go, (Ref name eras)]
+
+    (Term.match term case_var case_typ case_all case_lam case_app case_box case_put case_dup case_uit case_num case_op1 case_op2 case_ite case_cpy case_sig case_par case_fst case_snd case_prj case_slf case_new case_use case_ann case_ref go val)
+  let stop = {inc depth val term}
+    [{x}x, term]
+  dup func = (Term.rec #call #stop)
+  # {depth val term}
+    (snd (func 0 depth val term))
 
 def Term.ex:
   // Library functions
   dup to_string = Term.to_string
   dup shift     = Term.shift
-  //dup subst     = Term.subst
+  dup subst     = Term.subst
   dup copy      = Term.copy
   //dup reduce    = Term.reduce
 
   //Example terms
-  # (Pair.prj
-      (copy (shift 3 0 (Lam "A" (Just Typ) (Lam "x" (Just (Var 0)) (App (Var 2) (Var 1) Bool.false) Bool.false) Bool.true))) {x y} [(to_string x), (to_string y)])
+  # (to_string (subst 0 (Lam "A" (Just Typ) (Lam "x" (Just (Var 0)) (App (Var 2) (Var 1) Bool.false) Bool.false) Bool.true) (App (Var 0) (Var 0) Bool.false)))
