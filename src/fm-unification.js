@@ -224,8 +224,10 @@ const apply_ap_telescope = ([term, list]) => {
 const reduce = (term) => norm(term, {}, {undup: true, weak: false});
 
 const simplify = ([t1, t2], depth) => {
-    t1 = reduce(t1);
-    t2 = reduce(t2);
+    // reduce terms to weak head normal form
+    t1 = norm(t1, {}, {undup: true, weak: true});
+    t2 = norm(t2, {}, {undup: true, weak: true});
+
     const simplify_aux = ([t1, t2], depth) => {
         // if t1 and t2 are equal, we are done
         if (equal(t1, t2, {})){
@@ -260,7 +262,7 @@ const simplify = ([t1, t2], depth) => {
             return [[t1[1].body, t2[1].body], [t1[1].bind, t2[1].bind]];
         }
 
-        // in case any is stuck, we just return the same constraint
+        // in case any is stuck, we just return the same constraint, since we cannot make it any simpler
         if (is_stuck(t1) || is_stuck(t2)) {
             return [t1, t2];
         }
