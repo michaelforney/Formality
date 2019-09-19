@@ -220,3 +220,54 @@ const apply_ap_telescope = ([term, list]) => {
     list.forEach((arg) => { term = App(term, arg, false); })
     return term;
 }
+
+const reduce = (term) => norm(term, {}, {undup: true, weak: false});
+
+const simplify = ([t1, t2], depth) => {
+    t1 = reduce(t1);
+    t2 = reduce(t2);
+    const simplify_aux = ([t1, t2], depth) => {
+        // if t1 and t2 are equal, we are done
+        if (equal(t1, t2, {})){
+            return [];
+        }
+
+        // if t1 and t2 are terms of form A(a1, ..., an) and B(b1, ..., bm) where A and B are free variables, then n = m and A = B; otherwise we fail. We then unify all ai and bi.
+        var [func1, args1] = peel_ap_telescope(t1);
+        if (func1[0] === "Var" && func1[1].index >= depth){
+            var [func2, args2] = peel_ap_telescope(t2);
+            if (func2[0] === "Var" && func2[1].index >= depth){
+                if(func1[1].index === func2[1].index && args1.length === args2.length){
+                    var constraints = [];
+                    for (var i = 0; i < args1.index; ++i) {
+                        var maybe = simplify_aux([args1[i], args2[i]], depth);
+                        if (maybe === null) return null;
+                        constraints.concat(maybe);
+                    }
+                    return constraints;
+                }
+                else return null;
+            }
+        }
+
+        // if t1 and t2 are lambda terms, then their bodies must be equal
+        if (t1[0] === "Lam" && t2[0] === "Lam"){
+            return [[t1[1].body, t2[1].body]];
+        }
+
+        // if t1 and t2 are pi types, then their bodies and binds must be equal
+        if (t1[0] === "All" && t2[0] === "All"){
+            return [[t1[1].body, t2[1].body], [t1[1].bind, t2[1].bind]];
+        }
+
+        // in case any is stuck, we just return the same constraint
+        if (is_stuck(t1) || is_stuck(t2)) {
+            return [t1, t2];
+        }
+
+        // otherwise we fail
+        return null;
+    }
+
+    return simplify_aux([t1, t2], depth);
+}
