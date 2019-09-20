@@ -121,6 +121,78 @@ const freevars = ([ctor, term]) => {
     return freevars_aux([ctor, term], 0, new Set);
 }
 
+const metavars = ([ctor, term]) => {
+    const metavars_aux = ([ctor, term], depth, vars) => {
+        switch (ctor) {
+        case "Var":
+            return vars;
+        case "Typ":
+            return vars;
+        case "Tid":
+            return vars;
+        case "All":
+            return metavars_aux(term.bind, depth, vars) && metavars_aux(term.body, depth + 1, vars);
+        case "Lam":
+            return (!(term.bind) || metavars_aux(term.bind, depth, vars)) && metavars_aux(term.body, depth + 1, vars);
+        case "App":
+            return metavars_aux(term.func, depth, vars) && metavars_aux(term.argm, depth, vars);
+        case "Box":
+            return metavars_aux(term.expr, depth, vars);
+        case "Put":
+            return metavars_aux(term.expr, depth, vars);
+        case "Tak":
+            return metavars_aux(term.expr, depth, vars);
+        case "Dup":
+            return metavars_aux(term.expr, depth, vars) && metavars_aux(term.body, depth + 1, vars);
+        case "Wrd":
+            return vars;
+        case "Num":
+            return vars;
+        case "Op1":
+        case "Op2":
+            return metavars_aux(term.num0, depth, vars) && metavars_aux(term.num1, depth, vars);
+        case "Ite":
+            return metavars_aux(term.cond, depth, vars) && metavars_aux(term.pair, depth, vars);
+        case "Cpy":
+            return metavars_aux(term.numb, depth, vars) && metavars_aux(term.body, depth + 1, vars);
+        case "Sig":
+            return metavars_aux(term.typ0, depth, vars) && metavars_aux(term.typ1, depth + 1, vars);
+        case "Par":
+            return metavars_aux(term.val0, depth, vars) && metavars_aux(term.val1, depth, vars);
+        case "Fst":
+            return metavars_aux(term.pair, depth, vars);
+        case "Snd":
+            return metavars_aux(term.pair, depth, vars);
+        case "Prj":
+            return metavars_aux(term.pair, depth, vars) && metavars_aux(term.body, depth + 2, vars);
+        case "Eql":
+            return metavars_aux(term.val0, depth, vars) && metavars_aux(term.val1, depth, vars);
+        case "Rfl":
+            return metavars_aux(term.expr, depth, vars);
+        case "Sym":
+            return metavars_aux(term.prof, depth, vars);
+        case "Rwt":
+            return metavars_aux(term.type, depth + 1, vars) && metavars_aux(term.prof, depth, vars) && metavars_aux(term.expr, depth, vars);
+        case "Slf":
+            return metavars_aux(term.type, depth + 1, vars);
+        case "New":
+            return metavars_aux(term.type, depth, vars) && metavars_aux(term.expr, depth, vars);
+        case "Use":
+            return metavars_aux(term.expr, depth, vars);
+        case "Ann":
+            return metavars_aux(term.type, depth, vars) && metavars_aux(term.expr, depth, vars);
+        case "Log":
+            return metavars_aux(term.expr, depth, vars);
+        case "Hol":
+            return vars.add(term.name);
+        case "Ref":
+            return vars;
+        }
+    }
+    return metavars_aux([ctor, term], 0, new Set);
+}
+
+
 const is_closed = ([ctor, term]) => {
     const is_closed_aux = ([ctor, term], depth) => {
         switch (ctor) {
@@ -216,7 +288,6 @@ const peel_ap_telescope = ([ctor, args]) => {
 }
 
 const apply_ap_telescope = ([term, list]) => {
-    var term = term;
     list.forEach((arg) => { term = App(term, arg, false); })
     return term;
 }
@@ -272,4 +343,45 @@ const simplify = ([t1, t2], depth) => {
     }
 
     return simplify_aux([t1, t2], depth);
+}
+
+const try_flex_rigid = ([t1, t2], depth) => {
+    var [func1, args1] = peel_ap_telescope(t1);
+    var [func2, args2] = peel_ap_telescope(t2);
+    if (func1[0] === "Hol" && !metavars(t2).has(func1[1].name)){
+        return generate_subst(args1.length, func1[1].name, func2);
+    }
+    if (func2[0] === "Hol" && !metavars(t1).has(func2[1].name)){
+        return generate_subst(args2.length, func2[1].name, func1);
+    }
+    return [];
+}
+
+const generate_subst = (bvars, mv, f) => {
+
+    const mkLam = (term) => {
+        for (var i = 0; i < bvars; ++i) {
+            term = Lam("a"+i, false, term, false);
+        }
+        return term;
+    }
+
+    const saturate_MV = (term) => {
+        for (var i = 0; i < bvars; ++i) {
+            term = App(term, Var(i));
+        }
+        return term;
+    }
+
+    return (nargs) => {
+//    generateSubst bvars mv f nargs = do
+//      let mkLam tm = foldr ($) tm (replicate bvars Lam)
+//      let saturateMV tm = foldl' Ap tm (map LocalVar [0..bvars - 1])
+//      let mkSubst = M.singleton mv
+//      args <- map saturateMV . map MetaVar <$> replicateM nargs (lift gen)
+//      return [mkSubst . mkLam $ applyApTelescope t args
+//             | t <- map LocalVar [0..bvars - 1] ++
+//                    if isClosed f then [f] else []]
+        return null; //TODO
+    }
 }
