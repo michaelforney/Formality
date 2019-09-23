@@ -192,7 +192,6 @@ const metavars = ([ctor, term]) => {
     return metavars_aux([ctor, term], 0, new Set);
 }
 
-
 const is_closed = ([ctor, term]) => {
     const is_closed_aux = ([ctor, term], depth) => {
         switch (ctor) {
@@ -358,30 +357,39 @@ const try_flex_rigid = ([t1, t2], depth) => {
 }
 
 const generate_subst = (bvars, mv, f) => {
-
-    const mkLam = (term) => {
-        for (var i = 0; i < bvars; ++i) {
-            term = Lam("a"+i, false, term, false);
-        }
-        return term;
-    }
-
-    const saturate_MV = (term) => {
-        for (var i = 0; i < bvars; ++i) {
-            term = App(term, Var(i));
-        }
-        return term;
-    }
-
     return (nargs) => {
-//    generateSubst bvars mv f nargs = do
-//      let mkLam tm = foldr ($) tm (replicate bvars Lam)
-//      let saturateMV tm = foldl' Ap tm (map LocalVar [0..bvars - 1])
-//      let mkSubst = M.singleton mv
-//      args <- map saturateMV . map MetaVar <$> replicateM nargs (lift gen)
-//      return [mkSubst . mkLam $ applyApTelescope t args
-//             | t <- map LocalVar [0..bvars - 1] ++
-//                    if isClosed f then [f] else []]
-        return null; //TODO
+        const mk_lam = (term) => {
+            for (var i = 0; i < bvars; ++i) {
+                term = Lam("a"+i, false, term, false);
+            }
+            return term;
+        }
+
+        const saturate_MV = (term) => {
+            for (var i = 0; i < bvars; ++i) {
+                term = App(term, Var(i));
+            }
+            return term;
+        }
+
+        const build_term = (term) => {
+            for (var i = 0; i < nargs; ++i){
+                term = App(term, saturate_MV(Hol(i+mv)));
+            }
+            return mk_lam(term);
+        }
+
+        var substs = [];
+        for (var i = 0; i < bvars; ++i){
+            var subst = {};
+            subst[mv] = build_term(Var(i));
+            substs.push(subst);
+        }
+        if (is_closed(f)){
+            var subst = {};
+            subst[mv] = build_term(f);
+            substs.push(subst);
+        }
+        return substs;
     }
 }
