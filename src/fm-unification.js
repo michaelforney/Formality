@@ -393,3 +393,140 @@ const generate_subst = (bvars, mv, f) => {
         return substs;
     }
 }
+
+const subst_mv = (val, mv, [ctor, term]) => {
+    switch (ctor) {
+    case "All":
+      var name = term.name;
+      var bind = subst_mv(val, mv, term.bind);
+      var body = subst_mv(val, mv, term.body);
+      var eras = term.eras;
+      return All(name, bind, body, eras);
+    case "Lam":
+      var name = term.name;
+      var bind = term.bind && subst_mv(val, mv, term.bind);
+      var body = subst_mv(val, mv, term.body);
+      var eras = term.eras;
+      return Lam(name, bind, body, eras);
+    case "App":
+      var func = subst_mv(val, mv, term.func);
+      var argm = subst_mv(val, mv, term.argm);
+      var eras = term.eras;
+      return App(func, argm, eras);
+    case "Box":
+      var expr = subst_mv(val, mv, term.expr);
+      return Box(expr);
+    case "Put":
+      var expr = subst_mv(val, mv, term.expr);
+      return Put(expr);
+    case "Tak":
+      var expr = subst_mv(val, mv, term.expr);
+      return Tak(expr);
+    case "Dup":
+      var name = term.name;
+      var expr = subst_mv(val, mv, term.expr);
+      var body = subst_mv(val, mv, term.body);
+      return Dup(name, expr, body);
+    case "Op1":
+    case "Op2":
+      var func = term.func;
+      var num0 = subst_mv(val, mv, term.num0);
+      var num1 = subst_mv(val, mv, term.num1);
+      return Op2(func, num0, num1);
+    case "Ite":
+      var cond = subst_mv(val, mv, term.cond);
+      var pair = subst_mv(val, mv, term.pair);
+      return Ite(cond, pair);
+    case "Cpy":
+      var name = term.name;
+      var numb = subst_mv(val, mv, term.numb);
+      var body = subst_mv(val, mv, term.body);
+      return Cpy(name, numb, body);
+    case "Sig":
+      var name = term.name;
+      var typ0 = subst_mv(val, mv, term.typ0);
+      var typ1 = subst_mv(val, mv, term.typ1);
+      var eras = term.eras;
+      return Sig(name, typ0, typ1, eras);
+    case "Par":
+      var val0 = subst_mv(val, mv, term.val0);
+      var val1 = subst_mv(val, mv, term.val1);
+      var eras = term.eras;
+      return Par(val0, val1, eras);
+    case "Fst":
+      var pair = subst_mv(val, mv, term.pair);
+      var eras = term.eras;
+      return Fst(pair, eras);
+    case "Snd":
+      var pair = subst_mv(val, mv, term.pair);
+      var eras = term.eras;
+      return Snd(pair, eras);
+    case "Prj":
+      var nam0 = term.nam0;
+      var nam1 = term.nam1;
+      var pair = subst_mv(val, mv, term.pair);
+      var body = subst_mv(val, mv, term.body);
+      var eras = term.eras;
+      return Prj(nam0, nam1, pair, body, eras);
+    case "Eql":
+      var val0 = subst_mv(val, mv, term.val0);
+      var val1 = subst_mv(val, mv, term.val1);
+      return Eql(val0, val1);
+    case "Rfl":
+      var expr = subst_mv(val, mv, term.expr);
+      return Rfl(expr);
+    case "Sym":
+      var prof = subst_mv(val, mv, term.prof);
+      return Sym(prof);
+    case "Rwt":
+      var name = term.name;
+      var type = subst_mv(val, mv, term.type);
+      var prof = subst_mv(val, mv, term.prof);
+      var expr = subst_mv(val, mv, term.expr);
+      return Rwt(name, type, prof, expr);
+    case "Slf":
+      var name = term.name;
+      var type = subst_mv(val, mv, term.type);
+      return Slf(name, type);
+    case "New":
+      var type = subst_mv(val, mv, term.type);
+      var expr = subst_mv(val, mv, term.expr);
+      return New(type, expr);
+    case "Use":
+      var expr = subst_mv(val, mv, term.expr);
+      return Use(expr);
+    case "Ann":
+      var type = subst_mv(val, mv, term.type);
+      var expr = subst_mv(val, mv, term.expr);
+      var done = term.done;
+      return Ann(type, expr, done);
+    case "Log":
+      var msge = subst_mv(val, mv, term.msge);
+      var expr = subst_mv(val, mv, term.expr);
+      return Log(msge, expr);
+    case "Hol":
+        return (term.name === mv ? val : [ctor, term]);
+    case "Ref":
+        return [ctor, term];
+    }
+    return [ctor, term];
+}
+
+const many_subst = (subst, term) => {
+    for (var [key, val] of Object.entries(subst)) {
+        term = subst_mv(val, key, term);
+    }
+    return term;
+}
+
+const disj_merge = (subst1, subst2) => {
+    var subst3 = {};
+    for (var [key, val] of Object.entries(subst1)) {
+        subst3[key] = val;
+    }
+    for (var [key, val] of Object.entries(subst2)) {
+        if (subst3.hasOwnProperty(key)) return null;
+        subst3[key] = val;
+    }
+    return subst3;
+}
