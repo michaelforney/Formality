@@ -291,14 +291,12 @@ const apply_ap_telescope = ([term, list]) => {
     return term;
 }
 
-const reduce = (term) => norm(term, {}, {undup: true, weak: false});
-
-const simplify = ([t1, t2], depth) => {
+const simplify = ([t1, t2, depth]) => {
     // reduce terms to weak head normal form
     t1 = norm(t1, {}, {undup: true, weak: true});
     t2 = norm(t2, {}, {undup: true, weak: true});
 
-    const simplify_aux = ([t1, t2], depth) => {
+    const simplify_aux = ([t1, t2, depth]) => {
         // if t1 and t2 are equal, we are done
         if (equal(t1, t2, {})){
             return [];
@@ -312,7 +310,7 @@ const simplify = ([t1, t2], depth) => {
                 if(func1[1].index === func2[1].index && args1.length === args2.length){
                     var constraints = [];
                     for (var i = 0; i < args1.index; ++i) {
-                        var maybe = simplify_aux([args1[i], args2[i]], depth);
+                        var maybe = simplify_aux([args1[i], args2[i], depth]);
                         if (maybe === null) return null;
                         constraints.concat(maybe);
                     }
@@ -324,24 +322,24 @@ const simplify = ([t1, t2], depth) => {
 
         // if t1 and t2 are lambda terms, then their bodies must be equal
         if (t1[0] === "Lam" && t2[0] === "Lam"){
-            return [[t1[1].body, t2[1].body]];
+            return [[t1[1].body, t2[1].body, depth+1]];
         }
 
         // if t1 and t2 are pi types, then their bodies and binds must be equal
         if (t1[0] === "All" && t2[0] === "All"){
-            return [[t1[1].body, t2[1].body], [t1[1].bind, t2[1].bind]];
+            return [[t1[1].body, t2[1].body, depth+1], [t1[1].bind, t2[1].bind, depth]];
         }
 
         // in case any is stuck, we just return the same constraint, since we cannot make it any simpler
         if (is_stuck(t1) || is_stuck(t2)) {
-            return [t1, t2];
+            return [t1, t2, depth];
         }
 
         // otherwise we fail
         return null;
     }
 
-    return simplify_aux([t1, t2], depth);
+    return simplify_aux([t1, t2, depth]);
 }
 
 const try_flex_rigid = ([t1, t2], depth) => {
@@ -520,13 +518,46 @@ const many_subst = (subst, term) => {
 }
 
 const disj_merge = (subst1, subst2) => {
-    var subst3 = {};
+    var union = {};
     for (var [key, val] of Object.entries(subst1)) {
-        subst3[key] = val;
+        union[key] = val;
     }
     for (var [key, val] of Object.entries(subst2)) {
-        if (subst3.hasOwnProperty(key)) return null;
-        subst3[key] = val;
+        if (union.hasOwnProperty(key)) return null;
+        union[key] = many_subst(subst1, val);
     }
-    return subst3;
+    return union;
+}
+
+const equal_constraints = (cnst1, cnst2) => {
+    return equal(cnst1[0], cnst2[0], {}) && equal(cnst1[1], cnst2[1], {}) && cnst1[2] === cnst2[2]
+}
+
+const repeated_simplify = (constraints) => {
+    var new_constraints = [];
+    var is_equal = true;
+    for (var x of constraints) {
+        var simpl_constraints = simplify(x);
+        if (simpl_constraints === null) {
+            return null;
+        }
+        if ((simpl_constraints.length !== 1) || !equal_constraints(simpl_constraints[0], x)){
+            is_equal = false;
+        }
+        for (var y of simpl_constraints) {
+            new_constraints.push(y);
+        }
+    }
+    if (is_equal){
+        return new_constraints;
+    }
+    return repeated_simplify(new_constraints);
+}
+
+const apply_subst = (s, cnsts) => {
+    var new_cnsts = [];
+    for (var [t1, t2, depth] of cnsts) {
+        new_cnsts.push([many_subst(s, t1), many_subst(s, t2), depth]);
+    }
+    return new_cnsts;
 }
