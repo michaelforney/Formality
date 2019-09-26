@@ -342,16 +342,60 @@ const simplify = ([t1, t2, depth]) => {
     return simplify_aux([t1, t2, depth]);
 }
 
-const try_flex_rigid = ([t1, t2], depth) => {
+// Streams constructors
+const nils = () => []
+const conss = (x, xs) => {
+    var memo = null;
+    return () => memo||(memo=[x, xs]);
+}
+
+// Stream functions
+const is_empty = (xs) => {
+    return xs().length === 0;
+}
+
+const get = (n, xs) => {
+  for (var i = 0; i < n; ++i) {
+    xs = xs()[1];
+  }
+  return xs()[0];
+};
+
+const take = (n, xs) => {
+    var ys = [];
+    for (var i = 0; i < n; ++i) {
+        ys.push(get(i, xs));
+    }
+    return ys;
+}
+
+const tail = (xs) => {
+    return xs()[1];
+}
+
+const interleave = (xs, ys) => {
+    if (is_empty(xs)) { return ys; }
+    if (is_empty(ys)) { return xs; }
+    var memo = null;
+    return () => memo||(memo=[get(0,xs), conss(get(0,ys), interleave(tail(xs), tail(ys)))]);
+}
+
+const build_stream = (func) => (function go(n) {
+    var memo = null;
+    return () => memo||(memo=[func(n), go(n + 1)]);
+})(0)
+
+// Generate substitutions
+const try_flex_rigid = ([t1, t2, depth]) => {
     var [func1, args1] = peel_ap_telescope(t1);
     var [func2, args2] = peel_ap_telescope(t2);
     if (func1[0] === "Hol" && !metavars(t2).has(func1[1].name)){
-        return generate_subst(args1.length, func1[1].name, func2);
+        return build_stream(generate_subst(args1.length, func1[1].name, func2));
     }
     if (func2[0] === "Hol" && !metavars(t1).has(func2[1].name)){
-        return generate_subst(args2.length, func2[1].name, func1);
+        return build_stream(generate_subst(args2.length, func2[1].name, func1));
     }
-    return [];
+    return nils;
 }
 
 const generate_subst = (bvars, mv, f) => {
@@ -560,4 +604,43 @@ const apply_subst = (s, cnsts) => {
         new_cnsts.push([many_subst(s, t1), many_subst(s, t2), depth]);
     }
     return new_cnsts;
+}
+
+const flexflex = (t1, t2) => {
+    return is_stuck(t1) && is_stuck(t2);
+}
+
+// Unify
+const unify = (subst, cnsts) => {
+    var new_cnsts = repeated_simplify(apply_subst(subst, cnsts));
+    var flexflexes = [];
+    var flexrigids = [];
+    for (var cnst of new_cnsts) {
+        if (flexflex(cnst)) {
+            flexflexes.push(cnst);
+        }
+        else {
+            flexrigids.push(cnst);
+        }
+    }
+    if (flexrigids.length === 0) {
+        return [subst, flexflexes];
+    }
+    var random_eq = Math.floor(Math.random()*flexrigids.length);
+    var psubsts = try_flex_rigid(random_eq);
+
+    // Must correct this function. Currently infinite loops.
+    const try_substs = (psubsts, cnsts) => {
+        if (is_empty(psubsts)) {
+            return nils;
+        }
+        let these = nils;
+        for (var new_subst of get(0, psubsts)) {
+            these = interleave(unify(disj_merge(new_subst, subst), cnsts), these);
+        }
+        let those = try_substs(tail(psubsts), cnsts);
+        return interleave(these, those);
+    }
+
+    return try_substs(psubsts, flexrigids.concat(flexflexes));
 }
