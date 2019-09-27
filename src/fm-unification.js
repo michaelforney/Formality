@@ -50,79 +50,8 @@ const {
   ctx_names,
 } = require("./fm-core.js");
 
-const freevars = ([ctor, term]) => {
-    const freevars_aux = ([ctor, term], depth, vars) => {
-        switch (ctor) {
-        case "Var":
-            return term.index < depth ? vars : vars.add(term.index - depth);
-        case "Typ":
-            return vars;
-        case "Tid":
-            return vars;
-        case "All":
-            return freevars_aux(term.bind, depth, vars) && freevars_aux(term.body, depth + 1, vars);
-        case "Lam":
-            return (!(term.bind) || freevars_aux(term.bind, depth, vars)) && freevars_aux(term.body, depth + 1, vars);
-        case "App":
-            return freevars_aux(term.func, depth, vars) && freevars_aux(term.argm, depth, vars);
-        case "Box":
-            return freevars_aux(term.expr, depth, vars);
-        case "Put":
-            return freevars_aux(term.expr, depth, vars);
-        case "Tak":
-            return freevars_aux(term.expr, depth, vars);
-        case "Dup":
-            return freevars_aux(term.expr, depth, vars) && freevars_aux(term.body, depth + 1, vars);
-        case "Wrd":
-            return vars;
-        case "Num":
-            return vars;
-        case "Op1":
-        case "Op2":
-            return freevars_aux(term.num0, depth, vars) && freevars_aux(term.num1, depth, vars);
-        case "Ite":
-            return freevars_aux(term.cond, depth, vars) && freevars_aux(term.pair, depth, vars);
-        case "Cpy":
-            return freevars_aux(term.numb, depth, vars) && freevars_aux(term.body, depth + 1, vars);
-        case "Sig":
-            return freevars_aux(term.typ0, depth, vars) && freevars_aux(term.typ1, depth + 1, vars);
-        case "Par":
-            return freevars_aux(term.val0, depth, vars) && freevars_aux(term.val1, depth, vars);
-        case "Fst":
-            return freevars_aux(term.pair, depth, vars);
-        case "Snd":
-            return freevars_aux(term.pair, depth, vars);
-        case "Prj":
-            return freevars_aux(term.pair, depth, vars) && freevars_aux(term.body, depth + 2, vars);
-        case "Eql":
-            return freevars_aux(term.val0, depth, vars) && freevars_aux(term.val1, depth, vars);
-        case "Rfl":
-            return freevars_aux(term.expr, depth, vars);
-        case "Sym":
-            return freevars_aux(term.prof, depth, vars);
-        case "Rwt":
-            return freevars_aux(term.type, depth + 1, vars) && freevars_aux(term.prof, depth, vars) && freevars_aux(term.expr, depth, vars);
-        case "Slf":
-            return freevars_aux(term.type, depth + 1, vars);
-        case "New":
-            return freevars_aux(term.type, depth, vars) && freevars_aux(term.expr, depth, vars);
-        case "Use":
-            return freevars_aux(term.expr, depth, vars);
-        case "Ann":
-            return freevars_aux(term.type, depth, vars) && freevars_aux(term.expr, depth, vars);
-        case "Log":
-            return freevars_aux(term.expr, depth, vars);
-        case "Hol":
-            return vars;
-        case "Ref":
-            return vars;
-        }
-    }
-    return freevars_aux([ctor, term], 0, new Set);
-}
-
 const metavars = ([ctor, term]) => {
-    const metavars_aux = ([ctor, term], depth, vars) => {
+    const metavars_aux = ([ctor, term], vars) => {
         switch (ctor) {
         case "Var":
             return vars;
@@ -131,136 +60,133 @@ const metavars = ([ctor, term]) => {
         case "Tid":
             return vars;
         case "All":
-            return metavars_aux(term.bind, depth, vars) && metavars_aux(term.body, depth + 1, vars);
+            return metavars_aux(term.bind, vars) && metavars_aux(term.body, vars);
         case "Lam":
-            return (!(term.bind) || metavars_aux(term.bind, depth, vars)) && metavars_aux(term.body, depth + 1, vars);
+            return (!(term.bind) || metavars_aux(term.bind, vars)) && metavars_aux(term.body, vars);
         case "App":
-            return metavars_aux(term.func, depth, vars) && metavars_aux(term.argm, depth, vars);
+            return metavars_aux(term.func, vars) && metavars_aux(term.argm, vars);
         case "Box":
-            return metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.expr, vars);
         case "Put":
-            return metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.expr, vars);
         case "Tak":
-            return metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.expr, vars);
         case "Dup":
-            return metavars_aux(term.expr, depth, vars) && metavars_aux(term.body, depth + 1, vars);
+            return metavars_aux(term.expr, vars) && metavars_aux(term.body, vars);
         case "Wrd":
             return vars;
         case "Num":
             return vars;
         case "Op1":
         case "Op2":
-            return metavars_aux(term.num0, depth, vars) && metavars_aux(term.num1, depth, vars);
+            return metavars_aux(term.num0, vars) && metavars_aux(term.num1, vars);
         case "Ite":
-            return metavars_aux(term.cond, depth, vars) && metavars_aux(term.pair, depth, vars);
+            return metavars_aux(term.cond, vars) && metavars_aux(term.pair, vars);
         case "Cpy":
-            return metavars_aux(term.numb, depth, vars) && metavars_aux(term.body, depth + 1, vars);
+            return metavars_aux(term.numb, vars) && metavars_aux(term.body, vars);
         case "Sig":
-            return metavars_aux(term.typ0, depth, vars) && metavars_aux(term.typ1, depth + 1, vars);
+            return metavars_aux(term.typ0, vars) && metavars_aux(term.typ1, vars);
         case "Par":
-            return metavars_aux(term.val0, depth, vars) && metavars_aux(term.val1, depth, vars);
+            return metavars_aux(term.val0, vars) && metavars_aux(term.val1, vars);
         case "Fst":
-            return metavars_aux(term.pair, depth, vars);
+            return metavars_aux(term.pair, vars);
         case "Snd":
-            return metavars_aux(term.pair, depth, vars);
+            return metavars_aux(term.pair, vars);
         case "Prj":
-            return metavars_aux(term.pair, depth, vars) && metavars_aux(term.body, depth + 2, vars);
+            return metavars_aux(term.pair, vars) && metavars_aux(term.body, vars);
         case "Eql":
-            return metavars_aux(term.val0, depth, vars) && metavars_aux(term.val1, depth, vars);
+            return metavars_aux(term.val0, vars) && metavars_aux(term.val1, vars);
         case "Rfl":
-            return metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.expr, vars);
         case "Sym":
-            return metavars_aux(term.prof, depth, vars);
+            return metavars_aux(term.prof, vars);
         case "Rwt":
-            return metavars_aux(term.type, depth + 1, vars) && metavars_aux(term.prof, depth, vars) && metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.type, vars) && metavars_aux(term.prof, vars) && metavars_aux(term.expr, vars);
         case "Slf":
-            return metavars_aux(term.type, depth + 1, vars);
+            return metavars_aux(term.type, vars);
         case "New":
-            return metavars_aux(term.type, depth, vars) && metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.type, vars) && metavars_aux(term.expr, vars);
         case "Use":
-            return metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.expr, vars);
         case "Ann":
-            return metavars_aux(term.type, depth, vars) && metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.type, vars) && metavars_aux(term.expr, vars);
         case "Log":
-            return metavars_aux(term.expr, depth, vars);
+            return metavars_aux(term.expr, vars);
         case "Hol":
             return vars.add(term.name);
         case "Ref":
             return vars;
         }
     }
-    return metavars_aux([ctor, term], 0, new Set);
+    return metavars_aux([ctor, term], new Set);
 }
 
-const is_closed = ([ctor, term]) => {
-    const is_closed_aux = ([ctor, term], depth) => {
-        switch (ctor) {
-        case "Var":
-            return term.index < depth;
-        case "Typ":
-            return true;
-        case "Tid":
-            return true;
-        case "All":
-            return is_closed_aux(term.bind, depth) && is_closed_aux(term.body, depth + 1);
-        case "Lam":
-            return (!(term.bind) || is_closed_aux(term.bind, depth)) && is_closed_aux(term.body, depth + 1);
-        case "App":
-            return is_closed_aux(term.func, depth) && is_closed_aux(term.argm, depth);
-        case "Box":
-            return is_closed_aux(term.expr, depth);
-        case "Put":
-            return is_closed_aux(term.expr, depth);
-        case "Tak":
-            return is_closed_aux(term.expr, depth);
-        case "Dup":
-            return is_closed_aux(term.expr, depth) && is_closed_aux(term.body, depth + 1);
-        case "Wrd":
-            return true;
-        case "Num":
-            return true;
-        case "Op1":
-        case "Op2":
-            return is_closed_aux(term.num0, depth) && is_closed_aux(term.num1, depth);
-        case "Ite":
-            return is_closed_aux(term.cond, depth) && is_closed_aux(term.pair, depth);
-        case "Cpy":
-            return is_closed_aux(term.numb, depth) && is_closed_aux(term.body, depth + 1);
-        case "Sig":
-            return is_closed_aux(term.typ0, depth) && is_closed_aux(term.typ1, depth + 1);
-        case "Par":
-            return is_closed_aux(term.val0, depth) && is_closed_aux(term.val1, depth);
-        case "Fst":
-            return is_closed_aux(term.pair, depth);
-        case "Snd":
-            return is_closed_aux(term.pair, depth);
-        case "Prj":
-            return is_closed_aux(term.pair, depth) && is_closed_aux(term.body, depth + 2);
-        case "Eql":
-            return is_closed_aux(term.val0, depth) && is_closed_aux(term.val1, depth);
-        case "Rfl":
-            return is_closed_aux(term.expr, depth);
-        case "Sym":
-            return is_closed_aux(term.prof, depth);
-        case "Rwt":
-            return is_closed_aux(term.type, depth + 1) && is_closed_aux(term.prof, depth) && is_closed_aux(term.expr, depth);
-        case "Slf":
-            return is_closed_aux(term.type, depth + 1);
-        case "New":
-            return is_closed_aux(term.type, depth) && is_closed_aux(term.expr, depth);
-        case "Use":
-            return is_closed_aux(term.expr, depth);
-        case "Ann":
-            return is_closed_aux(term.type, depth) && is_closed_aux(term.expr, depth);
-        case "Log":
-            return is_closed_aux(term.expr, depth);
-        case "Hol":
-            return true;
-        case "Ref":
-            return false;
-        }
+const is_closed = ([ctor, term], depth) => {
+    switch (ctor) {
+    case "Var":
+        return term.index < depth;
+    case "Typ":
+        return true;
+    case "Tid":
+        return true;
+    case "All":
+        return is_closed(term.bind, depth) && is_closed(term.body, depth + 1);
+    case "Lam":
+        return (!(term.bind) || is_closed(term.bind, depth)) && is_closed(term.body, depth + 1);
+    case "App":
+        return is_closed(term.func, depth) && is_closed(term.argm, depth);
+    case "Box":
+        return is_closed(term.expr, depth);
+    case "Put":
+        return is_closed(term.expr, depth);
+    case "Tak":
+        return is_closed(term.expr, depth);
+    case "Dup":
+        return is_closed(term.expr, depth) && is_closed(term.body, depth + 1);
+    case "Wrd":
+        return true;
+    case "Num":
+        return true;
+    case "Op1":
+    case "Op2":
+        return is_closed(term.num0, depth) && is_closed(term.num1, depth);
+    case "Ite":
+        return is_closed(term.cond, depth) && is_closed(term.pair, depth);
+    case "Cpy":
+        return is_closed(term.numb, depth) && is_closed(term.body, depth + 1);
+    case "Sig":
+        return is_closed(term.typ0, depth) && is_closed(term.typ1, depth + 1);
+    case "Par":
+        return is_closed(term.val0, depth) && is_closed(term.val1, depth);
+    case "Fst":
+        return is_closed(term.pair, depth);
+    case "Snd":
+        return is_closed(term.pair, depth);
+    case "Prj":
+        return is_closed(term.pair, depth) && is_closed(term.body, depth + 2);
+    case "Eql":
+        return is_closed(term.val0, depth) && is_closed(term.val1, depth);
+    case "Rfl":
+        return is_closed(term.expr, depth);
+    case "Sym":
+        return is_closed(term.prof, depth);
+    case "Rwt":
+        return is_closed(term.type, depth + 1) && is_closed(term.prof, depth) && is_closed(term.expr, depth);
+    case "Slf":
+        return is_closed(term.type, depth + 1);
+    case "New":
+        return is_closed(term.type, depth) && is_closed(term.expr, depth);
+    case "Use":
+        return is_closed(term.expr, depth);
+    case "Ann":
+        return is_closed(term.type, depth) && is_closed(term.expr, depth);
+    case "Log":
+        return is_closed(term.expr, depth);
+    case "Hol":
+        return true;
+    case "Ref":
+        return false;
     }
-    return is_closed_aux([ctor, term], 0);
 }
 
 const is_stuck = ([ctor, term]) => {
@@ -367,16 +293,16 @@ const try_flex_rigid = ([t1, t2, depth]) => {
     var [func1, args1] = peel_ap_telescope(t1);
     var [func2, args2] = peel_ap_telescope(t2);
     if (func1[0] === "Hol" && !metavars(t2).has(func1[1].name)){
-        return build_stream(generate_subst(args1.length, func1[1].name, func2));
+        return generate_subst(args1.length, func1[1].name, func2, depth);
     }
     if (func2[0] === "Hol" && !metavars(t1).has(func2[1].name)){
-        return build_stream(generate_subst(args2.length, func2[1].name, func1));
+        return generate_subst(args2.length, func2[1].name, func1, depth);
     }
     return nils;
 }
 
-const generate_subst = (bvars, mv, f) => {
-    return (nargs) => {
+const generate_subst = (bvars, mv, f, depth) => {
+    return build_stream((nargs) => {
         const mk_lam = (term) => {
             for (var i = 0; i < bvars; ++i) {
                 term = Lam("a"+i, false, term, false);
@@ -404,13 +330,13 @@ const generate_subst = (bvars, mv, f) => {
             subst[mv] = build_term(Var(i));
             substs.push(subst);
         }
-        if (is_closed(f)){
+        if (is_closed(f, depth)){
             var subst = {};
             subst[mv] = build_term(f);
             substs.push(subst);
         }
         return substs;
-    }
+    })
 }
 
 const subst_mv = (val, mv, [ctor, term]) => {
@@ -585,6 +511,21 @@ const apply_subst = (s, cnsts) => {
 
 const flexflex = (t1, t2) => {
     return is_stuck(t1) && is_stuck(t2);
+}
+
+const get = (n, list) => {
+  for (var i = 0; i < n; ++i) {
+    list = list()[1];
+  }
+  return list()[0];
+};
+
+const take = (n, xs) => {
+    var ys = [];
+    for (var i = 0; i < n; ++i) {
+        ys.push(get(i, xs));
+    }
+    return ys;
 }
 
 // Unify
