@@ -295,51 +295,46 @@ const simplify = ([t1, t2, depth]) => {
     // reduce terms to weak head normal form
     t1 = norm(t1, {}, {undup: true, weak: true});
     t2 = norm(t2, {}, {undup: true, weak: true});
-
-    const simplify_aux = ([t1, t2, depth]) => {
-        // if t1 and t2 are equal, we are done
-        if (equal(t1, t2, {})){
-            return [];
-        }
-
-        // if t1 and t2 are terms of form A(a1, ..., an) and B(b1, ..., bm) where A and B are free variables, then n = m and A = B; otherwise we fail. We then unify all ai and bi.
-        var [func1, args1] = peel_ap_telescope(t1);
-        if (func1[0] === "Var" && func1[1].index >= depth){
-            var [func2, args2] = peel_ap_telescope(t2);
-            if (func2[0] === "Var" && func2[1].index >= depth){
-                if(func1[1].index === func2[1].index && args1.length === args2.length){
-                    var constraints = [];
-                    for (var i = 0; i < args1.index; ++i) {
-                        var maybe = simplify_aux([args1[i], args2[i], depth]);
-                        if (maybe === null) return null;
-                        constraints.concat(maybe);
-                    }
-                    return constraints;
-                }
-                else return null;
-            }
-        }
-
-        // if t1 and t2 are lambda terms, then their bodies must be equal
-        if (t1[0] === "Lam" && t2[0] === "Lam"){
-            return [[t1[1].body, t2[1].body, depth+1]];
-        }
-
-        // if t1 and t2 are pi types, then their bodies and binds must be equal
-        if (t1[0] === "All" && t2[0] === "All"){
-            return [[t1[1].body, t2[1].body, depth+1], [t1[1].bind, t2[1].bind, depth]];
-        }
-
-        // in case any is stuck, we just return the same constraint, since we cannot make it any simpler
-        if (is_stuck(t1) || is_stuck(t2)) {
-            return [t1, t2, depth];
-        }
-
-        // otherwise we fail
-        return null;
+    // if t1 and t2 are equal, we are done
+    if (equal(t1, t2, {})){
+        return [];
     }
 
-    return simplify_aux([t1, t2, depth]);
+    // if t1 and t2 are terms of form A(a1, ..., an) and B(b1, ..., bm) where A and B are free variables, then n = m and A = B; otherwise we fail. We then unify all ai and bi.
+    var [func1, args1] = peel_ap_telescope(t1);
+    if (func1[0] === "Var" && func1[1].index >= depth){
+        var [func2, args2] = peel_ap_telescope(t2);
+        if (func2[0] === "Var" && func2[1].index >= depth){
+            if(func1[1].index === func2[1].index && args1.length === args2.length){
+                var constraints = [];
+                for (var i = 0; i < args1.index; ++i) {
+                    var maybe = simplify_aux([args1[i], args2[i], depth]);
+                    if (!maybe) return null;
+                    constraints.concat(maybe);
+                }
+                return constraints;
+            }
+            else return null;
+        }
+    }
+
+    // if t1 and t2 are lambda terms, then their bodies must be equal
+    if (t1[0] === "Lam" && t2[0] === "Lam"){
+        return [[t1[1].body, t2[1].body, depth+1]];
+    }
+
+    // if t1 and t2 are pi types, then their bodies and binds must be equal
+    if (t1[0] === "All" && t2[0] === "All"){
+        return [[t1[1].body, t2[1].body, depth+1], [t1[1].bind, t2[1].bind, depth]];
+    }
+
+    // in case any is stuck, we just return the same constraint, since we cannot make it any simpler
+    if (is_stuck(t1) || is_stuck(t2)) {
+        return [[t1, t2, depth]];
+    }
+
+    // otherwise we fail
+    return null;
 }
 
 // Streams constructors
@@ -354,30 +349,12 @@ const is_empty = (xs) => {
     return xs().length === 0;
 }
 
-const get = (n, xs) => {
-  for (var i = 0; i < n; ++i) {
-    xs = xs()[1];
-  }
-  return xs()[0];
-};
-
-const take = (n, xs) => {
-    var ys = [];
-    for (var i = 0; i < n; ++i) {
-        ys.push(get(i, xs));
-    }
-    return ys;
+const head = (xs) => {
+    return xs()[0];
 }
 
 const tail = (xs) => {
     return xs()[1];
-}
-
-const interleave = (xs, ys) => {
-    if (is_empty(xs)) { return ys; }
-    if (is_empty(ys)) { return xs; }
-    var memo = null;
-    return () => memo||(memo=[get(0,xs), conss(get(0,ys), interleave(tail(xs), tail(ys)))]);
 }
 
 const build_stream = (func) => (function go(n) {
@@ -582,7 +559,7 @@ const repeated_simplify = (constraints) => {
     var is_equal = true;
     for (var x of constraints) {
         var simpl_constraints = simplify(x);
-        if (simpl_constraints === null) {
+        if (!simpl_constraints) {
             return null;
         }
         if ((simpl_constraints.length !== 1) || !equal_constraints(simpl_constraints[0], x)){
@@ -613,6 +590,10 @@ const flexflex = (t1, t2) => {
 // Unify
 const unify = (subst, cnsts) => {
     var new_cnsts = repeated_simplify(apply_subst(subst, cnsts));
+    if (!new_cnsts) {
+        return null;
+    }
+
     var flexflexes = [];
     var flexrigids = [];
     for (var cnst of new_cnsts) {
@@ -627,20 +608,21 @@ const unify = (subst, cnsts) => {
         return [subst, flexflexes];
     }
     var random_eq = Math.floor(Math.random()*flexrigids.length);
-    var psubsts = try_flex_rigid(random_eq);
+    var psubsts = try_flex_rigid(flexrigids[random_eq]);
 
-    // Must correct this function. Currently infinite loops.
     const try_substs = (psubsts, cnsts) => {
         if (is_empty(psubsts)) {
-            return nils;
+            return null;
         }
-        let these = nils;
-        for (var new_subst of get(0, psubsts)) {
-            these = interleave(unify(disj_merge(new_subst, subst), cnsts), these);
+        let ret = null;
+        for (var new_subst of head(psubsts)) {
+            ret = unify(disj_merge(new_subst, subst), cnsts);
+            if (ret) return ret;
         }
-        let those = try_substs(tail(psubsts), cnsts);
-        return interleave(these, those);
+        return try_substs(tail(psubsts), cnsts);
     }
 
     return try_substs(psubsts, flexrigids.concat(flexflexes));
 }
+
+const driver = (cnst) => unify({}, [cnst]);
