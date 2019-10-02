@@ -222,7 +222,7 @@ const simplify = ([t1, t2, depth]) => {
     t1 = norm(t1, {}, {undup: true, weak: true});
     t2 = norm(t2, {}, {undup: true, weak: true});
     // if t1 and t2 are equal, we are done
-    if (equal(t1, t2, {})){
+    if (metavars(t1).size === 0 && equal(t1, t2, {})){
         return [];
     }
 
@@ -232,13 +232,13 @@ const simplify = ([t1, t2, depth]) => {
         var [func2, args2] = peel_ap_telescope(t2);
         if (func2[0] === "Var" && func2[1].index >= depth){
             if(func1[1].index === func2[1].index && args1.length === args2.length){
-                var constraints = [];
+                var cnsts = [];
                 for (var i = 0; i < args1.index; ++i) {
                     var maybe = simplify_aux([args1[i], args2[i], depth]);
                     if (!maybe) return null;
-                    constraints.concat(maybe);
+                    cnsts.concat(maybe);
                 }
-                return constraints;
+                return cnsts;
             }
             else return null;
         }
@@ -319,7 +319,8 @@ const generate_subst = (bvars, mv, f, depth) => {
 
         const build_term = (term) => {
             for (var i = 0; i < nargs; ++i){
-                term = App(term, saturate_MV(Hol(i+mv)));
+                var hole = Hol("x" + Math.floor(Math.random() * Math.pow(2,48)));
+                term = App(term, saturate_MV(hole));
             }
             return mk_lam(term);
         }
@@ -480,25 +481,25 @@ const equal_constraints = (cnst1, cnst2) => {
     return equal(cnst1[0], cnst2[0], {}) && equal(cnst1[1], cnst2[1], {}) && cnst1[2] === cnst2[2]
 }
 
-const repeated_simplify = (constraints) => {
-    var new_constraints = [];
+const repeated_simplify = (cnsts) => {
+    var new_cnsts = [];
     var is_equal = true;
-    for (var x of constraints) {
-        var simpl_constraints = simplify(x);
-        if (!simpl_constraints) {
+    for (var x of cnsts) {
+        var simpl_cnsts = simplify(x);
+        if (!simpl_cnsts) {
             return null;
         }
-        if ((simpl_constraints.length !== 1) || !equal_constraints(simpl_constraints[0], x)){
+        if ((simpl_cnsts.length !== 1) || !equal_constraints(simpl_cnsts[0], x)){
             is_equal = false;
         }
-        for (var y of simpl_constraints) {
-            new_constraints.push(y);
+        for (var y of simpl_cnsts) {
+            new_cnsts.push(y);
         }
     }
     if (is_equal){
-        return new_constraints;
+        return new_cnsts;
     }
-    return repeated_simplify(new_constraints);
+    return repeated_simplify(new_cnsts);
 }
 
 const apply_subst = (s, cnsts) => {
@@ -509,7 +510,7 @@ const apply_subst = (s, cnsts) => {
     return new_cnsts;
 }
 
-const flexflex = (t1, t2) => {
+const flexflex = ([t1, t2, depth]) => {
     return is_stuck(t1) && is_stuck(t2);
 }
 
@@ -563,7 +564,138 @@ const unify = (subst, cnsts) => {
         return try_substs(tail(psubsts), cnsts);
     }
 
-    return try_substs(psubsts, flexrigids.concat(flexflexes));
+    return try_substs(psubsts, [...flexrigids, ...flexflexes]);
 }
 
 const driver = (cnst) => unify({}, [cnst]);
+
+const type_of = (mctx, ctx, [ctor, term], depth) => {
+    switch (ctor) {
+    case "Var":
+        if (ctx[term.index] === undefined) {
+            return null;
+        }
+        return [ctx[term.index], []];
+    case "Typ":
+        return [Typ(), []];
+    case "Tid":
+        return null;
+    case "All":
+        var [from_type, from_cnsts] = type_of(mcxt, ctx, term.bind, depth);
+        var [to_type, to_cnsts] = type_of(mcxt, [from, ...ctx], term.body, depth+1);
+        return [Typ(), [...from_cnsts, ...to_cnsts, [Typ(), from_type, 0], [Typ(), to_type, 0]]];
+    case "Lam":
+        var mv = "x" + Math.floor(Math.random() * Math.pow(2,48));
+        var [to, cnsts] = type_of({...mctx, mv : Typ()}, [Hol(mv), ...ctx], term.body, depth+1);
+        return [All("x", Hol(mv), to, false), [...cnsts, [Hol(mv), Hol(mv), 0]]];
+    case "App":
+        try {
+            var [type_func, cnst_func] = type_of(mctx, ctx, term.func, depth);
+            var [type_argm, cnst_argm] = type_of(mctx, ctx, term.argm, depth);
+            if (type_func[0] === "All") {
+                var from = type_func[0].bind;
+                var to = type_func[0].body;
+                var cnsts = [...cnst_func, ...cnst_argm, [from, type_argm, depth]];
+                return [subst(to, term.argm, 0), cnsts];
+            }
+            var hole1 = Hol("x" + Math.floor(Math.random() * Math.pow(2,48)));
+            var hole2 = Hol("x" + Math.floor(Math.random() * Math.pow(2,48)));
+            var cnst1 = [type_func, All("x", hole1, App(hole2, Var(0), false), false), depth];
+            var cnst2 = [type_argm, hole1, depth];
+            var cnsts = [...cnst_func, ...cnst_argm, cnst1, cnst2];
+            return [App(hole2, type_argm, false), cnsts];
+        }
+        catch (e) {
+            return null;
+        }
+
+    case "Box":
+        return null;
+    case "Put":
+        return null;
+    case "Tak":
+        return null;
+    case "Dup":
+        return null;
+    case "Wrd":
+        return null;
+    case "Num":
+        return null;
+    case "Op1":
+    case "Op2":
+        return null;
+    case "Ite":
+        return null;
+    case "Cpy":
+        return null;
+    case "Sig":
+        return null;
+    case "Par":
+        return null;
+    case "Fst":
+        return null;
+    case "Snd":
+        return null;
+    case "Prj":
+        return null;
+    case "Eql":
+        return null;
+    case "Rfl":
+        return null;
+    case "Sym":
+        return null;
+    case "Rwt":
+        return null;
+    case "Slf":
+        return null;
+    case "New":
+        return null;
+    case "Use":
+        return null;
+    case "Ann":
+        return null;
+    case "Log":
+        return null;
+
+    case "Hol":
+        if (mctx[term.name] === undefined) {
+            return null;
+        }
+        return [mctx[term.name], []];
+    case "Ref":
+        return null;
+    }
+}
+
+const infer = (term) => {
+    var [type, cnsts] = type_of({},[],term,0);
+    var [subst, flexflex] = unify({}, cnsts);
+    return [many_subst(subst, type), flexflex];
+}
+
+const print_cnst = ([term1, term2, depth]) => console.log("[" + show(term1) + ", " + show(term2) + ", " + depth + "]");
+const print_unification = ([term1, term2]) => {
+    const uni = unify({}, [[term1, term2, 0]]);
+    if (!uni) return null;
+
+    for(var key in uni[0]){
+        console.log("Substitute metavar " + key + " with " + show(uni[0][key]));
+    }
+
+    if (uni[1].length > 0) console.log("Remaining flexflex equations:");
+    for(var key in uni[1]){
+        console.log(show(uni[1][key][0]) + " == " + show(uni[1][key][1]) + " at level " + uni[1][key][2]);
+    }
+    return null;
+}
+const print_inference = (term) => {
+    var [type, flexflex] = infer(term);
+    console.log(show(type));
+    if (flexflex.length > 0){
+        console.log("Subject to constraints:");
+        for (var cnst of flexflex) {
+            print_cnst(cnst);
+        }
+    }
+    return null;
+}
