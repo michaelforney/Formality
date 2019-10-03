@@ -569,106 +569,109 @@ const unify = (subst, cnsts) => {
 
 const driver = (cnst) => unify({}, [cnst]);
 
-const type_of = (mctx, ctx, [ctor, term], depth) => {
-    switch (ctor) {
-    case "Var":
-        if (ctx[term.index] === undefined) {
-            return null;
-        }
-        return [ctx[term.index], []];
-    case "Typ":
-        return [Typ(), []];
-    case "Tid":
-        return null;
-    case "All":
-        var [from_type, from_cnsts] = type_of(mcxt, ctx, term.bind, depth);
-        var [to_type, to_cnsts] = type_of(mcxt, [from, ...ctx], term.body, depth+1);
-        return [Typ(), [...from_cnsts, ...to_cnsts, [Typ(), from_type, 0], [Typ(), to_type, 0]]];
-    case "Lam":
-        var mv = "x" + Math.floor(Math.random() * Math.pow(2,48));
-        var [to, cnsts] = type_of({...mctx, mv : Typ()}, [Hol(mv), ...ctx], term.body, depth+1);
-        return [All("x", Hol(mv), to, false), [...cnsts, [Hol(mv), Hol(mv), 0]]];
-    case "App":
-        try {
-            var [type_func, cnst_func] = type_of(mctx, ctx, term.func, depth);
-            var [type_argm, cnst_argm] = type_of(mctx, ctx, term.argm, depth);
-            if (type_func[0] === "All") {
-                var from = type_func[0].bind;
-                var to = type_func[0].body;
-                var cnsts = [...cnst_func, ...cnst_argm, [from, type_argm, depth]];
-                return [subst(to, term.argm, 0), cnsts];
+const type_of = (mctx, ctx, term) => {
+    const aux = (mctx, ctx, [ctor, term], max_mv) => {
+        switch (ctor) {
+        case "Var":
+            if (ctx[term.index] === undefined) {
+                return null;
             }
-            var hole1 = Hol("x" + Math.floor(Math.random() * Math.pow(2,48)));
-            var hole2 = Hol("x" + Math.floor(Math.random() * Math.pow(2,48)));
-            var cnst1 = [type_func, All("x", hole1, App(hole2, Var(0), false), false), depth];
-            var cnst2 = [type_argm, hole1, depth];
-            var cnsts = [...cnst_func, ...cnst_argm, cnst1, cnst2];
-            return [App(hole2, type_argm, false), cnsts];
-        }
-        catch (e) {
+            return [ctx[term.index], [], max_mv];
+        case "Typ":
+            return [Typ(), [], max_mv];
+        case "Tid":
+            return null;
+        case "All":
+            var [from_type, from_cnsts, max_mv] = aux(mcxt, ctx, term.bind, max_mv);
+            var [to_type, to_cnsts, max_mv] = aux(mcxt, [from, ...ctx], term.body, max_mv);
+            return [Typ(), [...from_cnsts, ...to_cnsts, [Typ(), from_type, 0], [Typ(), to_type, 0]], max_mv];
+        case "Lam":
+            var mv = "x" + (max_mv+1);
+            var [to, cnsts, max_mv] = aux({...mctx, mv : Typ()}, [Hol(mv), ...ctx], term.body, max_mv+1);
+            return [All(mv, Hol(mv), to, false), [...cnsts, [Hol(mv), Hol(mv), 0]], max_mv+1];
+        case "App":
+            try {
+                var [type_func, cnst_func, max_mv] = aux(mctx, ctx, term.func, max_mv);
+                var [type_argm, cnst_argm, max_mv] = aux(mctx, ctx, term.argm, max_mv);
+                if (type_func[0] === "All") {
+                    var from = type_func[0].bind;
+                    var to = type_func[0].body;
+                    var cnsts = [...cnst_func, ...cnst_argm, [from, type_argm, 0]];
+                    return [subst(to, term.argm, 0), cnsts, max_mv];
+                }
+                var hole1 = Hol("x" + (max_mv+1));
+                var hole2 = Hol("x" + (max_mv+2));
+                var cnst1 = [type_func, All("x"+(max_mv+1), hole1, App(hole2, Var(0), false), false), 0];
+                var cnst2 = [type_argm, hole1, 0];
+                var cnsts = [...cnst_func, ...cnst_argm, cnst1, cnst2];
+                return [App(hole2, type_argm, false), cnsts, max_mv+2];
+            }
+            catch (e) {
+                return null;
+            }
+
+        case "Box":
+            return null;
+        case "Put":
+            return null;
+        case "Tak":
+            return null;
+        case "Dup":
+            return null;
+        case "Wrd":
+            return null;
+        case "Num":
+            return null;
+        case "Op1":
+        case "Op2":
+            return null;
+        case "Ite":
+            return null;
+        case "Cpy":
+            return null;
+        case "Sig":
+            return null;
+        case "Par":
+            return null;
+        case "Fst":
+            return null;
+        case "Snd":
+            return null;
+        case "Prj":
+            return null;
+        case "Eql":
+            return null;
+        case "Rfl":
+            return null;
+        case "Sym":
+            return null;
+        case "Rwt":
+            return null;
+        case "Slf":
+            return null;
+        case "New":
+            return null;
+        case "Use":
+            return null;
+        case "Ann":
+            return null;
+        case "Log":
+            return null;
+
+        case "Hol":
+            if (mctx[term.name] === undefined) {
+                return null;
+            }
+            return [mctx[term.name], [], max_mv];
+        case "Ref":
             return null;
         }
-
-    case "Box":
-        return null;
-    case "Put":
-        return null;
-    case "Tak":
-        return null;
-    case "Dup":
-        return null;
-    case "Wrd":
-        return null;
-    case "Num":
-        return null;
-    case "Op1":
-    case "Op2":
-        return null;
-    case "Ite":
-        return null;
-    case "Cpy":
-        return null;
-    case "Sig":
-        return null;
-    case "Par":
-        return null;
-    case "Fst":
-        return null;
-    case "Snd":
-        return null;
-    case "Prj":
-        return null;
-    case "Eql":
-        return null;
-    case "Rfl":
-        return null;
-    case "Sym":
-        return null;
-    case "Rwt":
-        return null;
-    case "Slf":
-        return null;
-    case "New":
-        return null;
-    case "Use":
-        return null;
-    case "Ann":
-        return null;
-    case "Log":
-        return null;
-
-    case "Hol":
-        if (mctx[term.name] === undefined) {
-            return null;
-        }
-        return [mctx[term.name], []];
-    case "Ref":
-        return null;
     }
+    return aux(mctx, ctx, term, -1).slice(0, 2);
 }
 
 const infer = (term) => {
-    var [type, cnsts] = type_of({},[],term,0);
+    var [type, cnsts] = type_of({},[],term);
     var [subst, flexflex] = unify({}, cnsts);
     return [many_subst(subst, type), flexflex];
 }
@@ -690,12 +693,14 @@ const print_unification = ([term1, term2]) => {
 }
 const print_inference = (term) => {
     var [type, flexflex] = infer(term);
-    console.log(show(type));
+    console.log("Type:");
+    console.log(show(type)+"\n");
     if (flexflex.length > 0){
         console.log("Subject to constraints:");
         for (var cnst of flexflex) {
             print_cnst(cnst);
         }
     }
+    console.log();
     return null;
 }
