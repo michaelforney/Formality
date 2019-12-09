@@ -21,6 +21,7 @@ try {
   console.log("Commands:");
   console.log("$ fm -d <file>/<term> | evaluates (debug)");
   console.log("$ fm -f <file>/<term> | evaluates (fast)");
+  console.log("$ fm -c <file>/<term> | evaluates (fast, C WASM)");
   console.log("$ fm -o <file>/<term> | evaluates (optimal)");
   console.log("$ fm -t <file>/<term> | type-checks");
   console.log("$ fm -t <file>/@      | type-checks (all)");
@@ -90,6 +91,15 @@ async function run_CLI() {
     var {rt_defs, rt_rfid} = fm.runtime.compile(defs);
     var rt_term = rt_defs[rt_rfid[name]];
     var {rt_term,stats} = fm.runtime.reduce(rt_term, rt_defs);
+    var term = fm.runtime.decompile(rt_term);
+    console.log(fm.lang.show(term));
+    console.log(JSON.stringify(stats));
+
+  // Evaluates on fast mode (WASM)
+  } else if (args.c) {
+    var {name, defs} = await load_code();
+    var {rt_defs, rt_rfid} = fm.runtime.compile(defs);
+    var {rt_term, stats} = fm.runtime_wasm.reduce(Object.values(rt_defs), rt_rfid[name]);
     var term = fm.runtime.decompile(rt_term);
     console.log(fm.lang.show(term));
     console.log(JSON.stringify(stats));
